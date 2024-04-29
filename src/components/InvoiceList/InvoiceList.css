@@ -1,0 +1,27 @@
+/* Inside InvoiceList.css */
+
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px; /* Adjust as needed */
+  }
+  
+  .invoice-table th, .invoice-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .invoice-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .flex-container {
+    display: flex;
+    justify-content: space-between; /* Adjust as needed */
+  }
+
+ .flex-item {
+    flex: 1;
+    padding: 12px; /* Adjust padding as needed */
+  } 
