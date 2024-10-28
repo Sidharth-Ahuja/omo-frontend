@@ -11,8 +11,9 @@ import { Header } from '../../components/PageTitle';
 import { DarkMode } from '../../atom/Atom'
 import BackGround from "../../assets/img/DarkMode/Background.png"
 import { useRecoilState } from "recoil";
-import Back from "../../assets/img/DarkMode/Back.svg";
 import { useNavigate } from 'react-router-dom'
+import Loader from '../../components/Loader'
+import { imageSets } from '../../app/components/ImagesComp/constants'
 
 export const InputStar1Lock = atom(false)
 export const InputStar2Lock = atom(true)
@@ -36,6 +37,10 @@ const ChooseTablePage = () => {
   const [loading, setLoading] = useState(true)
   const [isDarkMode, setIsDarkMode] = useRecoilState(DarkMode);
   const navigate = useNavigate();
+  // const [endingAudio, setEndingAudio] = useState<HTMLAudioElement | null>(null);
+  const [preloadedEndingAudio, setPreloadedEndingAudio] = useState({});
+  const [preloadedGifs, setPreloadedGifs] = useState({});
+  const [assetsFetched, setAssetsFetched] = useState(false);
 
   const [level1time, setLevel1time] = useState(10)
   const [level2time, setLevel2time] = useState(15)
@@ -89,6 +94,119 @@ const ChooseTablePage = () => {
     console.log("usersQuerySnapshot.docs", usersQuerySnapshot.data());
     return usersQuerySnapshot.data();
   };
+
+  useEffect(() => {
+    const preloadAssets = async () => {
+        const gifList = ["you_win.gif", "you_lose.gif", "draw.gif", "coin_Left.gif", "coin_Right.gif", "spectator.gif", "lock.gif","Bg7.png","BG11.png"];
+        const promises = [];
+
+        // Helper function to preload images in batches with delay
+        const preloadImages = (sources, delay = 200) => {
+            return new Promise((resolve) => {
+                sources.forEach((src, index) => {
+                    setTimeout(() => {
+                        const img = new Image();
+                        img.src = src.startsWith('/stills') ? src : `/stills/${src}`;
+                    }, delay * index);
+                });
+                resolve();
+            });
+        };
+
+        // Preload initial GIFs in batches
+        await preloadImages(gifList);
+
+        // Iterate over imageSets to queue up promises for each asset type
+        imageSets.forEach((e) =>
+            e.forEach((image) => {
+                if (image.endingSrc && !preloadedGifs[image.endingSrc]) {
+                    promises.push(preloadImages([image.endingSrc.startsWith('/stills') ? image.endingSrc : `/stills/${image.endingSrc}`]));
+                }
+
+                if (image.fullScreen && image.endingRightSrc && !preloadedGifs[image.endingRightSrc]) {
+                    promises.push(preloadImages([image.endingRightSrc.startsWith('/stills') ? image.endingRightSrc : `/stills/${image.endingRightSrc}`]));
+                }
+
+                if (!image.fullScreen && image.src && !preloadedGifs[image.src]) {
+                    const regularGifSrc = image.src.replace('.png', '.gif');
+                    promises.push(preloadImages([
+                        image.src.startsWith('/stills') ? image.src : `/stills/${image.src}`,
+                        regularGifSrc.startsWith('/stills') ? regularGifSrc : `/stills/${regularGifSrc}`
+                    ]));
+                }
+
+                if (image.fullScreen) {
+                    const rightFullGifSrc = image.src.replace('.png', 'Right.gif');
+                    const leftFullGifSrc = image.src.replace('.png', 'Left.gif');
+                    promises.push(preloadImages([
+                        image.src.startsWith('/stills') ? image.src : `/stills/${image.src}`,
+                        rightFullGifSrc.startsWith('/stills') ? rightFullGifSrc : `/stills/${rightFullGifSrc}`,
+                        leftFullGifSrc.startsWith('/stills') ? leftFullGifSrc : `/stills/${leftFullGifSrc}`
+                    ]));
+                }
+
+                if (image.audioSrc && !preloadedEndingAudio[image.alt]) {
+                    const audio = new Audio(image.audioSrc);
+                    promises.push(new Promise(resolve => {
+                        audio.oncanplaythrough = resolve;
+                        audio.onerror = () => resolve(); // Resolve even on error
+                        audio.preload = 'auto';
+                        audio.load();
+                    }));
+
+                    if (image.fullScreen && image.rightAudioSrc) {
+                        const rightAudio = new Audio(image.rightAudioSrc);
+                        promises.push(new Promise(resolve => {
+                            rightAudio.oncanplaythrough = resolve;
+                            rightAudio.onerror = () => resolve();
+                            rightAudio.preload = 'auto';
+                            rightAudio.load();
+                        }));
+                    }
+                }
+
+                if (image.endingAudioSrc && !preloadedEndingAudio[`${image.alt}-ending`]) {
+                    const endingAudio = new Audio(image.endingAudioSrc);
+                    promises.push(new Promise(resolve => {
+                        endingAudio.oncanplaythrough = resolve;
+                        endingAudio.onerror = () => resolve();
+                        endingAudio.preload = 'auto';
+                        endingAudio.load();
+                    }));
+
+                    if (image.fullScreen && image.endingRightAudioSrc) {
+                        const endingRightAudio = new Audio(image.endingRightAudioSrc);
+                        promises.push(new Promise(resolve => {
+                            endingRightAudio.oncanplaythrough = resolve;
+                            endingRightAudio.onerror = () => resolve();
+                            endingRightAudio.preload = 'auto';
+                            endingRightAudio.load();
+                        }));
+                    }
+                }
+            })
+        );
+
+        // Wait for all asset loading promises
+        await Promise.all(promises);
+
+        // Delay setting assetsFetched for smoother performance on mobile
+        setTimeout(() => {
+            setAssetsFetched(true);
+        }, 3000);
+        sessionStorage.setItem("assetsFetched", true);
+    }
+
+    // Load assets if not fetched previously
+    if (!sessionStorage.getItem("assetsFetched")) {
+        preloadAssets();
+    } else {
+        setTimeout(() => {
+            setAssetsFetched(true);
+        }, 3000);
+    }
+}, [imageSets]);
+
   useEffect(() => {
     // const language = JSON.parse(localStorage.getItem("flag")) || "en";
     const language = fetchUserData();
@@ -135,6 +253,7 @@ const ChooseTablePage = () => {
     loading ? (
       <LoadingSpinner />
     ) : (
+      <>
       <div className={' sm:flex sm:justify-center ' + (isDarkMode ? " bg-[#212121]" : "bg-gray-50")}>
         <div className={'p-4 flex flex-col overflow-scroll scrollbar-hide pb-[70px] sm:w-[500px] ' + (isDarkMode && " text-white ")} style={isDarkMode ? { background: `url(${BackGround})`, color: 'white', backgroundRepeat: 'no-repeat', backgroundSize: 'cover' } : {}} >
           <Header title='CHOOSE TABLE' />
@@ -177,6 +296,8 @@ const ChooseTablePage = () => {
           />
         </div>
       </div>
+      {!assetsFetched && <Loader/>}
+      </>
     )
   ) : (
     <NotAuthorised />

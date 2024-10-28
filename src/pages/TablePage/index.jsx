@@ -86,6 +86,8 @@ import topGoldBorder from "../../assets/icons/border/gold_border/top.png";
 import rightGoldBorder from "../../assets/icons/border/gold_border/right.png";
 import bottomGoldBorder from "../../assets/icons/border/gold_border/bottom.png";
 import OverlayMessageRound from "./OverlayMessageRound";
+import Timer from "../../app/components/Timer";
+import { database1 } from "../../app/firebase-int.ts";
 
 //Importing Data file for gifs
 import { GifData, ConclusionData } from "../../utils/GifsUpdate/GifData";
@@ -128,6 +130,8 @@ const TablePage = () => {
   const [isSpectator, setIsSpectator] = useAtom(InputIsSpectator);
   const [lockChoice, setLockChoice] = useAtom(InputTableLockChoice);
   const [fromLivePage, setFromLivePage] = useAtom(InputFromLivePage);
+  const [clickCounts, setClickCounts] = useState({ left: 0, right: 0 });
+  const [winDetails, setWinDetails] = useState({});
 
   const [winCount, setWinCount] = useState(0);
   const [loseCount, setLoseCount] = useState(0);
@@ -154,6 +158,86 @@ const TablePage = () => {
 
   const [isCoinShowing, setIsCoinShowing] = useState(true)
 
+
+  const userPlayingFromTokenBalance = tokenBalance >= tableAmount;
+  const userPlayingFromBonusBalance = tokenBalance === 0 && bonusBalance >= tableAmount;
+  const userPlayingFromBothBothBalances = tokenBalance !== 0 && tokenBalance < tableAmount && tokenBalance + bonusBalance >= tableAmount;
+  
+
+  useEffect(() => {
+    const clickCountsRef = ref(database1, 'clickCounts');
+
+    // Listen for real-time updates to total click counts from Firebase
+    const unsubscribeClickCounts = onValue(clickCountsRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            setClickCounts({
+                left: data.left || 0,
+                right: data.right || 0,
+            });
+        }
+    });
+
+    return () => unsubscribeClickCounts();
+}, []);
+
+
+useEffect(() => {
+  const clickCountsRef = ref(database1, 'clickCounts');
+  const unsubscribeClickCounts = onValue(clickCountsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+          setClickCounts(data);
+      }
+  });
+
+  return () => {
+      unsubscribeClickCounts(); // Clean up listener
+  };
+}, []);
+
+  const updateWinningAmount = async () => {
+    const losingSide = clickCounts.left > clickCounts.right ?  "left" : "right";
+    const winningSide = losingSide === "left" ? "right" : "left";
+    const totalLosingAmount = clickCounts[losingSide] * tableAmount;
+    const wonBalance =  totalLosingAmount / clickCounts[winningSide];
+
+    setWinDetails({...{
+      winningSide,wonBalance
+    }})
+    let tokenBalanceRatio;
+    let bonusBalanceRatio;
+
+    if(userPlayingFromBothBothBalances){
+      tokenBalanceRatio = tokenBalance/tableAmount;
+      bonusBalanceRatio= 1 - tokenBalanceRatio;
+    }
+
+    const userRef = doc(fireStore, "users", userAuthID);
+    const newTokenBalance = !userPlayingFromBothBothBalances ? userPlayingFromTokenBalance ? tokenBalance + wonBalance : tokenBalance : tokenBalance + (wonBalance * tokenBalanceRatio);
+    const newBonusBalance = !userPlayingFromBothBothBalances ? userPlayingFromBonusBalance ? bonusBalance + wonBalance : bonusBalance : bonusBalance + (wonBalance * bonusBalanceRatio); 
+    setTokenBalance(newTokenBalance);
+    setBonusBalance(newBonusBalance);
+    await updateDoc(userRef, { 
+      tokenBalance :newTokenBalance,
+      bonusBalance: newBonusBalance,
+    })
+      isBalanceFinished(newTokenBalance,newBonusBalance);
+  }
+
+  const updateLosingAmount = async () => {
+    const userRef = doc(fireStore, "users", userAuthID);
+    const newTokenBalance = !userPlayingFromBothBothBalances ? userPlayingFromTokenBalance ? tokenBalance - tableAmount : tokenBalance : 0;
+    const newBonusBalance = !userPlayingFromBothBothBalances ? userPlayingFromBonusBalance? bonusBalance - tableAmount : bonusBalance : bonusBalance - (tableAmount - tokenBalance);
+    setTokenBalance(newTokenBalance);
+    setBonusBalance(newBonusBalance);
+    await updateDoc(userRef, {
+      tokenBalance: newTokenBalance,
+      bonusBalance: newBonusBalance,
+    }
+    );
+
+  
 
   // Final Result Calc
   const finalResult = async () => {
@@ -195,11 +279,7 @@ const TablePage = () => {
         setTimeout(() => updateTableDesign(), 3000);
       } else if (playerBox === win) {
         setResult("win");
-        const updatedBalance = tokenBalance + tableAmount;
-        setTokenBalance(updatedBalance);
-        isBonusRound
-          ? await updateDoc(userRef, { bonusBalance: updatedBalance })
-          : await updateDoc(userRef, { tokenBalance: updatedBalance });
+        updateWinningAmount();
         await updateDoc(userRef, {
           [`allGamesPlayed.wins`]: increment(1),
         });
@@ -214,17 +294,7 @@ const TablePage = () => {
         }
       } else if (playerBox !== win) {
         setResult("lose");
-        const updatedBalance =
-          isFreeRound || isBonusRound
-            ? tokenBalance
-            : tokenBalance - tableAmount;
-
-        if (updatedBalance >= 0) {
-          setTokenBalance(updatedBalance);
-          updateDoc(userRef, {
-            tokenBalance: updatedBalance,
-          });
-          console.log("heree");
+        updateLosingAmount();
         } else {
           setBonusBalance(tableAmount - tokenBalance);
           setTokenBalance(0);
@@ -232,7 +302,6 @@ const TablePage = () => {
             bonusBalance: bonusBalance - (tableAmount - tokenBalance),
             tokenBalance: 0,
           });
-          console.log("heree2");
         }
 
         // isBonusRound
@@ -279,71 +348,84 @@ const TablePage = () => {
         }
       });
     }
+
+    isBalanceFinished(newTokenBalance,newBonusBalance); 
   };
 
   // Box Clicks
-  const handleBox1Click = () => {
-    const player = document.getElementById("player");
-    player.setAttribute("style", "top: -150px");
+  // const handleBox1Click = () => {
+  //   const player = document.getElementById("player");
+  //   player.setAttribute("style", "top: -150px");
 
-    set(
-      ref(
-        database,
-        "users/" + `table${currentTable}/` + "players/" + userAuthID
-      ),
-      {
-        boxClicked: 1,
-      }
-    );
+  //   set(
+  //     ref(
+  //       database,
+  //       "users/" + `table${currentTable}/` + "players/" + userAuthID
+  //     ),
+  //     {
+  //       boxClicked: 1,
+  //     }
+  //   );
 
-    setPlayerBox(1);
-  };
-  const handleBox2Click = () => {
-    const player = document.getElementById("player");
-    player.setAttribute("style", "top: 48px");
+  //   setPlayerBox(1);
+  // };
+  // const handleBox2Click = () => {
+  //   const player = document.getElementById("player");
+  //   player.setAttribute("style", "top: 48px");
 
-    set(
-      ref(
-        database,
-        "users/" + `table${currentTable}/` + "players/" + userAuthID
-      ),
-      {
-        boxClicked: 2,
-      }
-    );
+  //   set(
+  //     ref(
+  //       database,
+  //       "users/" + `table${currentTable}/` + "players/" + userAuthID
+  //     ),
+  //     {
+  //       boxClicked: 2,
+  //     }
+  //   );
 
-    setPlayerBox(2);
-  };
-  const handleButton1Click = (e) => {
-    // e.stopPropagation()
-    setBtn1Clicked(true);
-    setBtn2Clicked(false);
-    set(
-      ref(
-        database,
-        "users/" + `table${currentTable}/` + "players/" + userAuthID
-      ),
-      {
-        boxClicked: 1,
-      }
-    );
-    setPlayerBox(1);
-  };
-  const handleButton2Click = () => {
-    !lockChoice && setBtn2Clicked(true);
-    !lockChoice && setBtn1Clicked(false);
-    set(
-      ref(
-        database,
-        "users/" + `table${currentTable}/` + "players/" + userAuthID
-      ),
-      {
-        boxClicked: 2,
-      }
-    );
+  //   setPlayerBox(2);
+  // };
+  // const handleButton1Click = (e) => {
+  //   // e.stopPropagation()
+  //   setBtn1Clicked(true);
+  //   setBtn2Clicked(false);
+  //   set(
+  //     ref(
+  //       database,
+  //       "users/" + `table${currentTable}/` + "players/" + userAuthID
+  //     ),
+  //     {
+  //       boxClicked: 1,
+  //     }
+  //   );
+  //   setPlayerBox(1);
+  // };
+  // const handleButton2Click = () => {
+  //   !lockChoice && setBtn2Clicked(true);
+  //   !lockChoice && setBtn1Clicked(false);
+  //   set(
+  //     ref(
+  //       database,
+  //       "users/" + `table${currentTable}/` + "players/" + userAuthID
+  //     ),
+  //     {
+  //       boxClicked: 2,
+  //     }
+  //   );
 
-    setPlayerBox(2);
-  };
+  //   setPlayerBox(2);
+  // };
+
+
+  const isBalanceFinished = (newTokenBalance,newBonusBalance) => {
+    if (newTokenBalance + newBonusBalance < tableAmount) {
+      // navigate(`/table/${currentTable}/error`);
+      setTimeout(() => {
+        navigate(`/table/${currentTable}/error`);
+      },3000)
+      setModalOpen(false);
+    }
+  }
 
   // Removing User
   const handleVisibilityChange = () => {
@@ -366,34 +448,34 @@ const TablePage = () => {
   };
 
   // Utils
-  const calculateRingProgress = () => {
-    const progress = (time / tableTime) * 100;
-    return progress;
-  };
-  const handleShareClick = (e) => {
-    e.stopPropagation();
-    setModalHeader("Share and earn bonus! 💸");
-    setModalContent("Share your referral link and earn bonus");
-    setModalType("share");
-    setModalOpen(true);
-  };
-  const getServerTime = () => {
-    return Math.floor(Date.now() / 1000);
-  };
+  // const calculateRingProgress = () => {
+  //   const progress = (time / tableTime) * 100;
+  //   return progress;
+  // };
+  // const handleShareClick = (e) => {
+  //   e.stopPropagation();
+  //   setModalHeader("Share and earn bonus! 💸");
+  //   setModalContent("Share your referral link and earn bonus");
+  //   setModalType("share");
+  //   setModalOpen(true);
+  // };
+  // const getServerTime = () => {
+  //   return Math.floor(Date.now() / 1000);
+  // };
 
-  const updateTableDesign = () => {
-    const tableTypeRef = ref(database, `users/table${currentTable}/tableType`);
-    const tableDesignRef = ref(database, `users/table${currentTable}/design/`);
-    const randomTable = generateRandomTable();
-    set(tableTypeRef, randomTable.tableType);
-    if (randomTable.tableType !== "COINMOVE") {
-      set(tableDesignRef, {
-        bgColor: randomTable.bgColor,
-        buttonsType: randomTable.buttonsType,
-        resultType: randomTable.resultType,
-      });
-    }
-  };
+  // const updateTableDesign = () => {
+  //   const tableTypeRef = ref(database, `users/table${currentTable}/tableType`);
+  //   const tableDesignRef = ref(database, `users/table${currentTable}/design/`);
+  //   const randomTable = generateRandomTable();
+  //   set(tableTypeRef, randomTable.tableType);
+  //   if (randomTable.tableType !== "COINMOVE") {
+  //     set(tableDesignRef, {
+  //       bgColor: randomTable.bgColor,
+  //       buttonsType: randomTable.buttonsType,
+  //       resultType: randomTable.resultType,
+  //     });
+  //   }
+  // };
 
   // Bot choices set up
   function generateRandomChoices() {
@@ -502,7 +584,6 @@ const TablePage = () => {
       }
     } else if (time === 0) {
       setFinalResultCalled(true);
-      !finalResultCalled && finalResult();
       setIsPaused(true);
       setModalOpen(false);
       setShowResult(true);
@@ -550,11 +631,6 @@ const TablePage = () => {
         // horizontal table
         const player = document.getElementById("player");
         player?.setAttribute("style", "top: -51px");
-
-        if (tokenBalance + bonusBalance < tableAmount) {
-          navigate(`/table/${currentTable}/error`);
-          setModalOpen(false);
-        }
       }, 3000);
     }
 
@@ -649,10 +725,10 @@ const TablePage = () => {
     return () => unsubscribe();
   }, [box1Ratio]);
 
-  // choose page redirect
-  useEffect(() => {
-    !fromLivePage && navigate("/deposit");
-  }, [fromLivePage]);
+  // // choose page redirect
+  // useEffect(() => {
+  //   !fromLivePage && navigate("/deposit");
+  // }, [fromLivePage]);
 
   const b1Style = "h-[120px] w-[150px]";
   const b2Style = "h-[120px] w-[150px]";
@@ -773,7 +849,7 @@ const TablePage = () => {
           </div>
         </div>
 
-        <div style={{position:'relative'}}>
+        {/* <div style={{position:'relative'}}>
           {isSpectator ? (
             <OverlayMessage
               // message="SPECTATOR 👁️"
@@ -828,8 +904,8 @@ const TablePage = () => {
               />
             )
           )}
-        </div>
-
+        </div> */}
+{/* 
         <div style={{position:'relative'}}>
         {isFreeRound ? (
           <OverlayMessageRound
@@ -844,7 +920,7 @@ const TablePage = () => {
             />
           )
         )}
-        </div>
+        </div> 
         <div className="relative" style={{position:'relative'}}>
           {isBonusRound && (
             <div>
@@ -870,7 +946,7 @@ const TablePage = () => {
               />
             </div>
           )}
-        </div>
+        </div> 
         <div className="relative">
           {isFreeRound && (
             <div>
@@ -897,7 +973,8 @@ const TablePage = () => {
             </div>
           )}
         </div>
-        {tableType === "VERTICAL" || tableType == "HORIZONTAL" ? (
+       {tableType === "VERTICAL" || tableType == "HORIZONTAL" ? 
+        (
           <div
             style={{ position: "relative" }}
             className={
@@ -910,7 +987,7 @@ const TablePage = () => {
               // className="flex h-[80vh] w-full mb-10 "
               className={isFlip ? Styles.BoxFlip : Styles.Box}
             >
-              {/* box1 */}
+             
               <div
                 className={Styles.box1main}
                 onClick={(e) => !lockChoice && handleButton1Click(e)}
@@ -998,7 +1075,6 @@ const TablePage = () => {
                   ) : (
                     " "
                   )}
-                  {/* box1 res */}
                   <div
                     // className={`flex flex-row relative top-[10%] left-[10%] justify-center ${
                     //   showResult ? "visible" : "invisible"
@@ -1013,7 +1089,6 @@ const TablePage = () => {
                   </div>
                 </span>
               </div>
-              {/* box2 */}
               <div
                 className={Styles.BoxMain2}
                 onClick={() => !lockChoice && handleButton2Click()}
@@ -1147,7 +1222,6 @@ const TablePage = () => {
                     " "
                   )
                   }
-                  {/* box2 res */}
                   {console.log("box 2 vote is ", box2Ratio)}
                   <div
                     className={isPaused ? Styles.Result : Styles.HiddenResult}
@@ -1168,7 +1242,8 @@ const TablePage = () => {
               </span>
             </div>
           </div>
-        ) : (
+        ) 
+        : (
           <div className="flex-col mt-6 h-[70vh] w-full">
             <div className="w-full mb-5">
               <div className="flex justify-between">
@@ -1189,7 +1264,6 @@ const TablePage = () => {
                 </div>
               </div>
             </div>
-            {/* box1 */}
             <div
               className={`relative z-0 
             ${
@@ -1219,7 +1293,6 @@ const TablePage = () => {
               <span className="text-[30px] text-white font-semibold">1</span>
             </div>
 
-            {/* box1 res */}
             <div
               className={`relative top-[-70px] left-[-35%] z-10 w-full flex flex-row justify-center  ${
                 showResult ? "visible" : "invisible"
@@ -1230,7 +1303,6 @@ const TablePage = () => {
               </div>
             </div>
 
-            {/* player */}
             <div
               id="player"
               className={`relative top-[-51px] z-10 w-full flex flex-row justify-center ${
@@ -1240,7 +1312,6 @@ const TablePage = () => {
               <BitcoinIcon className="w-[35px] h-[35px] rounded-full text-yellow-500 bg-white shadow-lg" />
             </div>
 
-            {/* box2 res */}
             <div
               className={`relative top-[-35px] left-[-35%] z-10 w-full flex flex-row justify-center ${
                 showResult ? "visible" : "invisible"
@@ -1251,7 +1322,6 @@ const TablePage = () => {
               </div>
             </div>
 
-            {/* box2 */}
             <div
               className={`relative top-[-103px] z-0 
             ${
@@ -1291,7 +1361,8 @@ const TablePage = () => {
               </span>
             </div>
           </div>
-        )}
+        )} */}
+        <Timer winHandler={updateWinningAmount} loseHandler={updateLosingAmount} winningAmount={winDetails.wonBalance} winningSide={winDetails.winningSide}/>
         <Popup />
       </div>
     )

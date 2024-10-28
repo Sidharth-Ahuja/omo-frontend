@@ -46,6 +46,7 @@ const VerificationPage = () => {
   )
   const [saveLoading, setSaveLoading] = useState(false)
   const [isDarkMode, setIsDarkMode] = useRecoilState(DarkMode);
+  const loaderGif = new Image();
 
   const {
     fields,
@@ -82,6 +83,10 @@ const VerificationPage = () => {
       console.error('Error saving object: ', error)
     }
   }
+
+  useEffect(() => {
+    loaderGif.src = "/src/assets/gif/Bitcoin-loading.gif"
+  },[])
 
   const onSubmitVerification = (data) => {
     const object = {

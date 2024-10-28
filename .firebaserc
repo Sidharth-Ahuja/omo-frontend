@@ -1,7 +1,5 @@
 {
   "projects": {
-    "default": "omo-v1",
-    "omo-game3":"omo-game3"
-
+    "default": "game-33e6e"
   }
 }

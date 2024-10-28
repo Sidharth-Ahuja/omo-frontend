@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
-import { AdjustmentsHorizontalIcon, CogIcon } from '@heroicons/react/24/solid'
-import app from '../../../../config/firebase'
+import React, { useEffect, useState } from 'react';
+import { AdjustmentsHorizontalIcon, CogIcon } from '@heroicons/react/24/solid';
+import app from '../../../../config/firebase';
 import {
   collection,
   doc,
@@ -9,53 +9,76 @@ import {
   getFirestore,
   setDoc,
   updateDoc,
-} from 'firebase/firestore'
-import { ref, set, get, getDatabase } from 'firebase/database'
-import LoadingSpinner from '../../../../components/LoadingSpinner'
-import { Link } from 'react-router-dom'
+} from 'firebase/firestore';
+import { ref, set, get, getDatabase } from 'firebase/database';
+import LoadingSpinner from '../../../../components/LoadingSpinner';
+import { Link } from 'react-router-dom';
 // import MfaVerification from '../../../../components/GoogleAuthenticator'
 
-const fireStore = getFirestore(app) // firebase firestore
-const database = getDatabase(app) // firebase database
+
+const fireStore = getFirestore(app); // firebase firestore
+const database = getDatabase(app); // firebase database
 const SettingsPage = () => {
-  const [loading, setLoading] = useState(false)
-  const [payoutProfit, setPayoutProfit] = useState(0)
-  const [bonusRoundTime, setBonusRoundTime] = useState(0)
-  const [freeRoundTime, setFreeRoundTime] = useState(0)
-  const [freeRoundCount, setFreeRoundCount] = useState(0)
+  const [loading, setLoading] = useState(false);
+  const [payoutProfit, setPayoutProfit] = useState(0);
+  const [bonusRoundTime, setBonusRoundTime] = useState(0);
+  const [freeRoundTime, setFreeRoundTime] = useState(0);
+  const [freeRoundCount, setFreeRoundCount] = useState(0);
 
-  const [level1time, setLevel1Time] = useState(0)
-  const [level2time, setLevel2Time] = useState(0)
-  const [level3time, setLevel3Time] = useState(0)
 
-  const [level1table1Bots, setLevel1table1Bots] = useState(0)
-  const [level1table2Bots, setLevel1table2Bots] = useState(0)
-  const [level1table3Bots, setLevel1table3Bots] = useState(0)
+  const [level1time, setLevel1Time] = useState(0);
+  const [level2time, setLevel2Time] = useState(0);
+  const [level3time, setLevel3Time] = useState(0);
 
-  const [level2table1Bots, setLevel2table1Bots] = useState(0)
-  const [level2table2Bots, setLevel2table2Bots] = useState(0)
-  const [level2table3Bots, setLevel2table3Bots] = useState(0)
 
-  const [level3table1Bots, setLevel3table1Bots] = useState(0)
-  const [level3table2Bots, setLevel3table2Bots] = useState(0)
-  const [level3table3Bots, setLevel3table3Bots] = useState(0)
+  const [level1table1Bots, setLevel1table1Bots] = useState(0);
+  const [maxLevel1table1Bots, setmaxLevel1table1Bots] = useState(0);
+  const [level1table2Bots, setLevel1table2Bots] = useState(0);
+  const [maxLevel1table2Bots, setmaxLevel1table2Bots] = useState(0);
+  const [level1table3Bots, setLevel1table3Bots] = useState(0);
+  const [maxLevel1table3Bots, setmaxLevel1table3Bots] = useState(0);
 
-  const [botWin, setBotWin] = useState(0)
 
-  const [withdrawFee, setWithdrawFee] = useState(0)
-  const [walletAddress, setWalletAddress] = useState('')
+  const [level2table1Bots, setLevel2table1Bots] = useState(0);
+  const [maxLevel2table1Bots, setmaxLevel2table1Bots] = useState(0);
+  const [level2table2Bots, setLevel2table2Bots] = useState(0);
+  const [maxLevel2table2Bots, setmaxLevel2table2Bots] = useState(0);
+  const [level2table3Bots, setLevel2table3Bots] = useState(0);
+  const [maxLevel2table3Bots, setmaxLevel2table3Bots] = useState(0);
 
-  const [reward1, setReward1] = useState(0)
-  const [reward2times, setReward2times] = useState(0)
-  const [reward2, setReward2] = useState(0)
-  const [reward3, setReward3] = useState(0)
-  const [reward4, setReward4] = useState(0)
-  const [reward5Hrs, setReward5Hrs] = useState(0)
-  const [reward5, setReward5] = useState(0)
+
+  const [level3table1Bots, setLevel3table1Bots] = useState(0);
+  const [maxLevel3table1Bots, setmaxLevel3table1Bots] = useState(0);
+  const [level3table2Bots, setLevel3table2Bots] = useState(0);
+  const [maxLevel3table2Bots, setmaxLevel3table2Bots] = useState(0);
+  const [level3table3Bots, setLevel3table3Bots] = useState(0);
+  const [maxLevel3table3Bots, setmaxLevel3table3Bots] = useState(0);
+
+
+  const [botUpdateTime, setBotUpdateTime] = useState(0);
+  const [totalCycleTime, setTotalCycleTime] = useState(0);
+
+
+  const [botWin, setBotWin] = useState(0);
+
+
+  const [withdrawFee, setWithdrawFee] = useState(0);
+  const [walletAddress, setWalletAddress] = useState('');
+
+
+  const [reward1, setReward1] = useState(0);
+  const [reward2times, setReward2times] = useState(0);
+  const [reward2, setReward2] = useState(0);
+  const [reward3, setReward3] = useState(0);
+  const [reward4, setReward4] = useState(0);
+  const [reward5Hrs, setReward5Hrs] = useState(0);
+  const [reward5, setReward5] = useState(0);
   const [newMasterKey, setNewMasterKey] = useState('');
   const [currentMasterKey, setCurrentMasterKey] = useState('');
 
-  const docRef = doc(fireStore, 'public', 'settings')
+
+  const docRef = doc(fireStore, 'public', 'settings');
+
 
   const handleChangeMasterKey = async () => {
     try {
@@ -71,77 +94,87 @@ const SettingsPage = () => {
     }
   };
 
+
   useEffect(() => {
     // Fetch the current master key when the component mounts
     const fetchMasterKey = async () => {
       try {
         const response = await axios.get('/get-master-key');
 
-        setCurrentMasterKey(response.data.masterKey);
-        setNewMasterKey(response.data.masterKey); 
 
+        setCurrentMasterKey(response.data.masterKey);
+        setNewMasterKey(response.data.masterKey);
       } catch (error) {
         console.error('Error fetching master key:', error.message);
       }
     };
 
+
     fetchMasterKey();
-  }, []); 
+  }, []);
 
 
   const handlePayoutProfit = () => {
-    updateDoc(docRef, { payoutProfits: +payoutProfit })
-  }
+    updateDoc(docRef, { payoutProfits: +payoutProfit });
+  };
+
 
   const handleRoundSettings = (index) => {
     if (index === 0) {
-      updateDoc(docRef, { bonusRoundTime: +bonusRoundTime })
+      updateDoc(docRef, { bonusRoundTime: +bonusRoundTime });
     } else if (index === 1) {
-      updateDoc(docRef, { freeRoundCount: +freeRoundCount })
+      updateDoc(docRef, { freeRoundCount: +freeRoundCount });
     } else if (index === 2) {
-      console.log(freeRoundTime)
-      updateDoc(docRef, { freeRoundTime: +freeRoundTime })
+      console.log(freeRoundTime);
+      updateDoc(docRef, { freeRoundTime: +freeRoundTime });
     }
-  }
+  };
+
 
   const handleLevelTimeSettings = (level) => {
     if (level === 1) {
-      updateDoc(docRef, { level1time: +level1time })
+      updateDoc(docRef, { level1time: +level1time });
     } else if (level === 2) {
-      updateDoc(docRef, { level2time: +level2time })
+      updateDoc(docRef, { level2time: +level2time });
     } else if (level === 3) {
-      updateDoc(docRef, { level3time: +level3time })
+      updateDoc(docRef, { level3time: +level3time });
     }
-  }
+  };
+
 
   const handleBotSettings = async (index, tableNum) => {
     const removeBotsFromTable = async (tableNumber) => {
       const tableKey = `table${tableNumber}`;
       const tableRef = ref(database, `users/${tableKey}/players`);
 
+
       try {
         const snapshot = await get(tableRef);
         const players = snapshot.val();
         if (!players) return;
 
+
         const bots = {};
         for (const playerKey in players) {
-          if (playerKey.startsWith("bot")) {
+          if (playerKey.startsWith('bot')) {
             bots[playerKey] = null; // Set the bot player to null to remove them
           }
         }
 
+
         await set(tableRef, bots);
       } catch (error) {
-        console.error("Error retrieving or removing players:", error);
+        console.error('Error retrieving or removing players:', error);
       }
     };
+
 
     if (index === 1 && tableNum == 1) {
       // const tableNumbers = [1, 2, 3]; // Table numbers for level1bot
       // for (const tableNumber of tableNumbers) {
       await removeBotsFromTable(tableNum);
       // }
+
 
       const bots = {}; // Object to store the bot players
       for (let i = 0; i < level1table1Bots; i++) {
@@ -154,18 +187,33 @@ const SettingsPage = () => {
       //   count++;
       // }
 
+
       // for (let i = count; i < level1table3Bots; i++) {
       //   const botNumber = `bot${i}`;
       //   bots[botNumber] = { boxClicked: 1 }; // Assigning a default value for boxClicked
       //   count++;
       // }
 
+
       // for (const tableNumber of tableNumbers) {
       const tableKey = `table${tableNum}`;
       const tableRef = ref(database, `users/${tableKey}/players`);
       await set(tableRef, bots);
       // }
-      updateDoc(docRef, { level1table1Bots: +level1table1Bots })
+
+
+      // Update the Realtime Database with minBots and maxBots
+      await set(ref(database, `users/${tableKey}/minBots`), level1table1Bots);
+      await set(
+        ref(database, `users/${tableKey}/maxBots`),
+        maxLevel1table1Bots
+      );
+
+
+      updateDoc(docRef, {
+        level1table1Bots: +level1table1Bots,
+        maxLevel1table1Bots: +maxLevel1table1Bots,
+      });
       // updateDoc(docRef, { level1table2Bots: +level1table2Bots })
       // updateDoc(docRef, { level1table3Bots: +level1table3Bots })
     }
@@ -174,6 +222,7 @@ const SettingsPage = () => {
       // for (const tableNumber of tableNumbers) {
       await removeBotsFromTable(tableNum);
       // }
+
 
       const bots = {}; // Object to store the bot players
       for (let i = 0; i < level1table2Bots; i++) {
@@ -186,27 +235,43 @@ const SettingsPage = () => {
       //   count++;
       // }
 
+
       // for (let i = count; i < level1table3Bots; i++) {
       //   const botNumber = `bot${i}`;
       //   bots[botNumber] = { boxClicked: 1 }; // Assigning a default value for boxClicked
       //   count++;
       // }
 
+
       // for (const tableNumber of tableNumbers) {
       const tableKey = `table${tableNum}`;
       const tableRef = ref(database, `users/${tableKey}/players`);
       await set(tableRef, bots);
       // }
-      updateDoc(docRef, { level1table2Bots: +level1table2Bots })
+
+
+      await set(ref(database, `users/${tableKey}/minBots`), level1table2Bots);
+      await set(
+        ref(database, `users/${tableKey}/maxBots`),
+        maxLevel1table2Bots
+      );
+
+
+      updateDoc(docRef, {
+        level1table2Bots: +level1table2Bots,
+        maxLevel1table2Bots: +maxLevel1table2Bots,
+      });
       // updateDoc(docRef, { level1table2Bots: +level1table2Bots })
       // updateDoc(docRef, { level1table3Bots: +level1table3Bots })
     }
+
 
     if (index === 1 && tableNum == 3) {
       // const tableNumbers = [1, 2, 3]; // Table numbers for level1bot
       // for (const tableNumber of tableNumbers) {
       await removeBotsFromTable(tableNum);
       // }
+
 
       const bots = {}; // Object to store the bot players
       for (let i = 0; i < level1table3Bots; i++) {
@@ -219,27 +284,41 @@ const SettingsPage = () => {
       //   count++;
       // }
 
+
       // for (let i = count; i < level1table3Bots; i++) {
       //   const botNumber = `bot${i}`;
       //   bots[botNumber] = { boxClicked: 1 }; // Assigning a default value for boxClicked
       //   count++;
       // }
 
+
       // for (const tableNumber of tableNumbers) {
       const tableKey = `table${tableNum}`;
       const tableRef = ref(database, `users/${tableKey}/players`);
       await set(tableRef, bots);
       // }
-      updateDoc(docRef, { level1table3Bots: +level1table3Bots })
+
+
+      // Update the Realtime Database with minBots and maxBots
+      await set(ref(database, `users/${tableKey}/minBots`), level1table3Bots);
+      await set(
+        ref(database, `users/${tableKey}/maxBots`),
+        maxLevel1table3Bots
+      );
+
+
+      updateDoc(docRef, {
+        level1table3Bots: +level1table3Bots,
+        maxLevel1table3Bots: +maxLevel1table3Bots,
+      });
       // updateDoc(docRef, { level1table2Bots: +level1table2Bots })
       // updateDoc(docRef, { level1table3Bots: +level1table3Bots })
-    }
-
-    else if (index === 2 && tableNum == 1) {
+    } else if (index === 2 && tableNum == 1) {
       // const tableNumbers = [4, 5, 6]; // Table numbers for level2bot
       // for (const tableNumber of tableNumbers) {
       await removeBotsFromTable(tableNum);
       // }
+
 
       const bots = {};
       // let count = 0;
@@ -265,16 +344,28 @@ const SettingsPage = () => {
       const tableRef = ref(database, `users/${tableKey}/players`);
       await set(tableRef, bots);
       // }
-      updateDoc(docRef, { level2table1Bots: +level2table1Bots })
+
+
+      // Update the Realtime Database with minBots and maxBots
+      await set(ref(database, `users/${tableKey}/minBots`), level2table1Bots);
+      await set(
+        ref(database, `users/${tableKey}/maxBots`),
+        maxLevel2table1Bots
+      );
+
+
+      updateDoc(docRef, {
+        level2table1Bots: +level2table1Bots,
+        maxLevel2table1Bots: +maxLevel2table1Bots,
+      });
       // updateDoc(docRef, { level2table2Bots: +level2table2Bots })
       // updateDoc(docRef, { level2table3Bots: +level2table3Bots })
-    }
-
-    else if (index === 2 && tableNum == 4) {
+    } else if (index === 2 && tableNum == 4) {
       // const tableNumbers = [4, 5, 6]; // Table numbers for level2bot
       // for (const tableNumber of tableNumbers) {
       await removeBotsFromTable(tableNum);
       // }
+
 
       const bots = {};
       // let count = 0;
@@ -300,16 +391,28 @@ const SettingsPage = () => {
       const tableRef = ref(database, `users/${tableKey}/players`);
       await set(tableRef, bots);
       // }
-      updateDoc(docRef, { level2table1Bots: +level2table1Bots })
+
+
+      // Update the Realtime Database with minBots and maxBots
+      await set(ref(database, `users/${tableKey}/minBots`), level2table1Bots);
+      await set(
+        ref(database, `users/${tableKey}/maxBots`),
+        maxLevel2table1Bots
+      );
+
+
+      updateDoc(docRef, {
+        level2table1Bots: +level2table1Bots,
+        maxLevel2table1Bots: +maxLevel2table1Bots,
+      });
       // updateDoc(docRef, { level2table2Bots: +level2table2Bots })
       // updateDoc(docRef, { level2table3Bots: +level2table3Bots })
-    }
-
-    else if (index === 2 && tableNum == 5) {
+    } else if (index === 2 && tableNum == 5) {
       // const tableNumbers = [4, 5, 6]; // Table numbers for level2bot
       // for (const tableNumber of tableNumbers) {
       await removeBotsFromTable(tableNum);
       // }
+
 
       const bots = {};
       // let count = 0;
@@ -335,16 +438,28 @@ const SettingsPage = () => {
       const tableRef = ref(database, `users/${tableKey}/players`);
       await set(tableRef, bots);
       // }
-      updateDoc(docRef, { level2table2Bots: +level2table2Bots })
+
+
+      // Update the Realtime Database with minBots and maxBots
+      await set(ref(database, `users/${tableKey}/minBots`), level2table2Bots);
+      await set(
+        ref(database, `users/${tableKey}/maxBots`),
+        maxLevel2table2Bots
+      );
+
+
+      updateDoc(docRef, {
+        level2table2Bots: +level2table2Bots,
+        maxLevel2table2Bots: +maxLevel2table2Bots,
+      });
       // updateDoc(docRef, { level2table2Bots: +level2table2Bots })
       // updateDoc(docRef, { level2table3Bots: +level2table3Bots })
-    }
-
-    else if (index === 2 && tableNum == 6) {
+    } else if (index === 2 && tableNum == 6) {
       // const tableNumbers = [4, 5, 6]; // Table numbers for level2bot
       // for (const tableNumber of tableNumbers) {
       await removeBotsFromTable(tableNum);
       // }
+
 
       const bots = {};
       // let count = 0;
@@ -370,16 +485,28 @@ const SettingsPage = () => {
       const tableRef = ref(database, `users/${tableKey}/players`);
       await set(tableRef, bots);
       // }
-      updateDoc(docRef, { level2table3Bots: +level2table3Bots })
+
+
+      // Update the Realtime Database with minBots and maxBots
+      await set(ref(database, `users/${tableKey}/minBots`), level2table3Bots);
+      await set(
+        ref(database, `users/${tableKey}/maxBots`),
+        maxLevel2table3Bots
+      );
+
+
+      updateDoc(docRef, {
+        level2table3Bots: +level2table3Bots,
+        maxLevel2table3Bots: +maxLevel2table3Bots,
+      });
       // updateDoc(docRef, { level2table2Bots: +level2table2Bots })
       // updateDoc(docRef, { level2table3Bots: +level2table3Bots })
-    }
-
-    else if (index === 3 && tableNum == 7) {
+    } else if (index === 3 && tableNum == 7) {
       // const tableNumbers = [7, 8, 9]; // Table numbers for level3bot
       // for (const tableNumber of tableNumbers) {
       await removeBotsFromTable(tableNum);
       // }
+
 
       const bots = {};
       // let count = 0;
@@ -399,20 +526,34 @@ const SettingsPage = () => {
       //   count++;
       // }
 
+
       // for (const tableNumber of tableNumbers) {
       const tableKey = `table${tableNum}`;
       const tableRef = ref(database, `users/${tableKey}/players`);
       await set(tableRef, bots);
       // }
-      updateDoc(docRef, { level3table1Bots: +level3table1Bots })
+
+
+      // Update the Realtime Database with minBots and maxBots
+      await set(ref(database, `users/${tableKey}/minBots`), level3table1Bots);
+      await set(
+        ref(database, `users/${tableKey}/maxBots`),
+        maxLevel3table1Bots
+      );
+
+
+      updateDoc(docRef, {
+        level3table1Bots: +level3table1Bots,
+        maxLevel3table1Bots: +maxLevel3table1Bots,
+      });
       // updateDoc(docRef, { level3table2Bots: +level3table2Bots })
       // updateDoc(docRef, { level3table3Bots: +level3table3Bots })
-    }
-    else if (index === 3 && tableNum == 8) {
+    } else if (index === 3 && tableNum == 8) {
       // const tableNumbers = [7, 8, 9]; // Table numbers for level3bot
       // for (const tableNumber of tableNumbers) {
       await removeBotsFromTable(tableNum);
       // }
+
 
       const bots = {};
       // let count = 0;
@@ -432,20 +573,34 @@ const SettingsPage = () => {
       //   count++;
       // }
 
+
       // for (const tableNumber of tableNumbers) {
       const tableKey = `table${tableNum}`;
       const tableRef = ref(database, `users/${tableKey}/players`);
       await set(tableRef, bots);
       // }
-      updateDoc(docRef, { level3table2Bots: +level3table2Bots })
+
+
+      // Update the Realtime Database with minBots and maxBots
+      await set(ref(database, `users/${tableKey}/minBots`), level3table2Bots);
+      await set(
+        ref(database, `users/${tableKey}/maxBots`),
+        maxLevel3table2Bots
+      );
+
+
+      updateDoc(docRef, {
+        level3table2Bots: +level3table2Bots,
+        maxLevel3table2Bots: +maxLevel3table2Bots,
+      });
       // updateDoc(docRef, { level3table2Bots: +level3table2Bots })
       // updateDoc(docRef, { level3table3Bots: +level3table3Bots })
-    }
-    else if (index === 3 && tableNum == 9) {
+    } else if (index === 3 && tableNum == 9) {
       // const tableNumbers = [7, 8, 9]; // Table numbers for level3bot
       // for (const tableNumber of tableNumbers) {
       await removeBotsFromTable(tableNum);
       // }
+
 
       const bots = {};
       // let count = 0;
@@ -465,416 +620,833 @@ const SettingsPage = () => {
       //   count++;
       // }
 
+
       // for (const tableNumber of tableNumbers) {
       const tableKey = `table${tableNum}`;
       const tableRef = ref(database, `users/${tableKey}/players`);
       await set(tableRef, bots);
       // }
-      updateDoc(docRef, { level3table3Bots: +level3table3Bots })
+
+
+      // Update the Realtime Database with minBots and maxBots
+      await set(ref(database, `users/${tableKey}/minBots`), level3table3Bots);
+      await set(
+        ref(database, `users/${tableKey}/maxBots`),
+        maxLevel3table3Bots
+      );
+
+
+      updateDoc(docRef, {
+        level3table3Bots: +level3table3Bots,
+        maxLevel3table3Bots: +maxLevel3table3Bots,
+      });
       // updateDoc(docRef, { level3table2Bots: +level3table2Bots })
       // updateDoc(docRef, { level3table3Bots: +level3table3Bots })
+    } else if (index === 4) {
+      updateDoc(docRef, { botWinPercentage: +botWin });
     }
-    else if (index === 4) {
-      updateDoc(docRef, { botWinPercentage: +botWin })
-    }
-  }
+  };
+
+
+  const updateBotTime = async () => {
+    await set(ref(database, `users/botUpdateTime`), botUpdateTime);
+
+
+    await updateDoc(docRef, {
+      botUpdateTime: +botUpdateTime,
+    });
+  };
+
+
+  const updateTotalCycleTime = async () => {
+    await set(ref(database, `users/totalCycleTime`), totalCycleTime);
+
+
+    await updateDoc(docRef, {
+      totalCycleTime: +totalCycleTime,
+    });
+  };
+
 
   const handlePaymentSettings = (index) => {
     if (index === 1) {
-      updateDoc(docRef, { withdrawFeePercentage: +withdrawFee })
+      updateDoc(docRef, { withdrawFeePercentage: +withdrawFee });
     } else if (index === 2) {
-      updateDoc(docRef, { adminWallet: walletAddress })
+      updateDoc(docRef, { adminWallet: walletAddress });
     }
-  }
+  };
+
 
   const handleRewardSettings = (index) => {
     if (index === 1) {
-      updateDoc(docRef, { reward1: +reward1 })
+      updateDoc(docRef, { reward1: +reward1 });
     } else if (index === 2) {
-      updateDoc(docRef, { reward2: +reward2, reward2times: +reward2times })
+      updateDoc(docRef, { reward2: +reward2, reward2times: +reward2times });
     } else if (index === 3) {
-      updateDoc(docRef, { reward3: +reward3 })
+      updateDoc(docRef, { reward3: +reward3 });
     } else if (index === 4) {
-      updateDoc(docRef, { reward4: +reward4 })
+      updateDoc(docRef, { reward4: +reward4 });
     } else if (index === 5) {
-      updateDoc(docRef, { reward5: +reward5, reward5Hrs: +reward5Hrs })
+      updateDoc(docRef, { reward5: +reward5, reward5Hrs: +reward5Hrs });
     }
-  }
+  };
+
 
   const fetchData = async () => {
-    setLoading(true)
-    const docRef = doc(fireStore, 'public', 'settings')
-    const docSnapshot = await getDoc(docRef)
+    setLoading(true);
+    const docRef = doc(fireStore, 'public', 'settings');
+    const docSnapshot = await getDoc(docRef);
+
 
     if (docSnapshot.exists()) {
-      const data = docSnapshot.data()
+      const data = docSnapshot.data();
+
 
       if (data) {
-        setPayoutProfit(data.payoutProfits ?? 0)
-        setBonusRoundTime(data.bonusRoundTime ?? 0)
-        setFreeRoundCount(data.freeRoundCount ?? 0)
-        setFreeRoundTime(data.freeRoundTime ?? 0)
-
-        setLevel1Time(data.level1time ?? 0)
-        setLevel2Time(data.level2time ?? 0)
-        setLevel3Time(data.level3time ?? 0)
-
-        setLevel1table1Bots(data.level1table1Bots ?? 0)
-        setLevel1table2Bots(data.level1table2Bots ?? 0)
-        setLevel1table3Bots(data.level1table3Bots ?? 0)
-
-        setLevel2table1Bots(data.level2table1Bots ?? 0)
-        setLevel2table2Bots(data.level2table2Bots ?? 0)
-        setLevel2table3Bots(data.level2table3Bots ?? 0)
-
-        setLevel3table1Bots(data.level3table1Bots ?? 0)
-        setLevel3table2Bots(data.level3table2Bots ?? 0)
-        setLevel3table3Bots(data.level3table3Bots ?? 0)
+        setPayoutProfit(data.payoutProfits ?? 0);
+        setBonusRoundTime(data.bonusRoundTime ?? 0);
+        setFreeRoundCount(data.freeRoundCount ?? 0);
+        setFreeRoundTime(data.freeRoundTime ?? 0);
 
 
-        setBotWin(data.botWinPercentage ?? 0)
+        setLevel1Time(data.level1time ?? 0);
+        setLevel2Time(data.level2time ?? 0);
+        setLevel3Time(data.level3time ?? 0);
 
-        setWithdrawFee(data.withdrawFeePercentage ?? 0)
-        setWalletAddress(data.adminWallet ?? '')
 
-        setReward1(data.reward1 ?? 0)
-        setReward2times(data.reward2times ?? 0)
-        setReward2(data.reward2 ?? 0)
-        setReward3(data.reward3 ?? 0)
-        setReward4(data.reward4 ?? 0)
-        setReward5Hrs(data.reward5Hrs ?? 0)
-        setReward5(data.reward5 ?? 0)
+        setLevel1table1Bots(data.level1table1Bots ?? 0);
+        setLevel1table2Bots(data.level1table2Bots ?? 0);
+        setLevel1table3Bots(data.level1table3Bots ?? 0);
+        setmaxLevel1table1Bots(data.maxLevel1table1Bots ?? 0);
+        setmaxLevel1table2Bots(data.maxLevel1table2Bots ?? 0);
+        setmaxLevel1table3Bots(data.maxLevel1table3Bots ?? 0);
+
+
+        setLevel2table1Bots(data.level2table1Bots ?? 0);
+        setLevel2table2Bots(data.level2table2Bots ?? 0);
+        setLevel2table3Bots(data.level2table3Bots ?? 0);
+        setmaxLevel2table1Bots(data.maxLevel2table1Bots ?? 0);
+        setmaxLevel2table2Bots(data.maxLevel2table2Bots ?? 0);
+        setmaxLevel2table3Bots(data.maxLevel2table3Bots ?? 0);
+
+
+        setLevel3table1Bots(data.level3table1Bots ?? 0);
+        setLevel3table2Bots(data.level3table2Bots ?? 0);
+        setLevel3table3Bots(data.level3table3Bots ?? 0);
+        setmaxLevel3table1Bots(data.maxLevel3table1Bots ?? 0);
+        setmaxLevel3table2Bots(data.maxLevel3table2Bots ?? 0);
+        setmaxLevel3table3Bots(data.maxLevel3table3Bots ?? 0);
+
+
+        setBotUpdateTime(data.botUpdateTime ?? 60);
+        setTotalCycleTime(data.totalCycleTime ?? 24);
+
+
+        setBotWin(data.botWinPercentage ?? 0);
+
+
+        setWithdrawFee(data.withdrawFeePercentage ?? 0);
+        setWalletAddress(data.adminWallet ?? '');
+
+
+        setReward1(data.reward1 ?? 0);
+        setReward2times(data.reward2times ?? 0);
+        setReward2(data.reward2 ?? 0);
+        setReward3(data.reward3 ?? 0);
+        setReward4(data.reward4 ?? 0);
+        setReward5Hrs(data.reward5Hrs ?? 0);
+        setReward5(data.reward5 ?? 0);
       }
     } else {
-      console.log('No such document!')
+      console.log('No such document!');
     }
 
-    setLoading(false)
-  }
+
+    setLoading(false);
+  };
+
 
   useEffect(() => {
-    fetchData()
-    return () => { }
-  }, [])
+    fetchData();
+    return () => {};
+  }, []);
 
-  const adminAuthID = localStorage.getItem('adminAuthID')
+
+  const adminAuthID = localStorage.getItem('adminAuthID');
+
 
   return adminAuthID ? (
     loading ? (
-      <div className='p-4 lg:ml-64'>
+      <div className="p-4 lg:ml-64">
         <LoadingSpinner />
       </div>
     ) : (
-      <div className='p-4 lg:ml-64 bg-[#FAFAFA]'>
-        <h1 className='font-bold mb-6 text-xl flex'>
-          SETTINGS <CogIcon className='w-6 h-6 mt-[3px] ml-2' />{' '}
+      <div className="p-4 lg:ml-64 bg-[#FAFAFA]">
+        <h1 className="font-bold mb-6 text-xl flex">
+          SETTINGS <CogIcon className="w-6 h-6 mt-[3px] ml-2" />{' '}
         </h1>
         {/* <MfaVerification/> */}
 
-        <div>
-          <div className='font-semibold mb-5 text-blue-600 flex'>
-            TABLE SETTINGS{' '}
-            <AdjustmentsHorizontalIcon className='w-5 h-5 mt-[3px] ml-2' />{' '}
-          </div>
 
-          <div className='flex w-[70%] justify-between mb-6'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Payouts from profits</div>
+        <div>
+          <div className="font-semibold mb-5 text-blue-600 flex">
+            TABLE SETTINGS{' '}
+            <AdjustmentsHorizontalIcon className="w-5 h-5 mt-[3px] ml-2" />{' '}
+          </div>
+          <div className="flex w-[70%] justify-between mb-6">
+            <div className="flex mr-8">
+              <div className="py-1">Payouts from profits</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px] h-[33px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px] h-[33px]"
                 value={payoutProfit}
                 onChange={(e) => setPayoutProfit(e.target.value)}
               />
-              <div className='py-1'>%</div>
+              <div className="py-1">%</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handlePayoutProfit()}
             >
               Save
             </div>
           </div>
-
-          <div className='font-medium mb-4 text-blue-600'>Rounds</div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Bonus every</div>
+          <div className="font-medium mb-4 text-blue-600">Rounds</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Bonus every</div>
               <input
                 value={bonusRoundTime}
                 onChange={(e) => setBonusRoundTime(e.target.value)}
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
               />
-              <div className='py-1'>minutes</div>
+              <div className="py-1">minutes</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleRoundSettings(0)}
             >
               Save
             </div>
           </div>
-
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Free round for users every</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Free round for users every</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
                 value={freeRoundTime}
                 onChange={(e) => setFreeRoundTime(e.target.value)}
               />
-              <div className='py-1'>games</div>
+              <div className="py-1">games</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleRoundSettings(1)}
             >
               Save
             </div>
           </div>
-
-          <div className='flex w-[70%] justify-between mb-6'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Free round every</div>
+          <div className="flex w-[70%] justify-between mb-6">
+            <div className="flex mr-8">
+              <div className="py-1">Free round every</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
                 value={freeRoundCount}
                 onChange={(e) => setFreeRoundCount(e.target.value)}
               />
-              <div className='py-1'>minutes</div>
+              <div className="py-1">minutes</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleRoundSettings(2)}
             >
               Save
             </div>
           </div>
-
-          <div className='font-medium mb-4 text-blue-600'>Change Time</div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1 mr-4'>Level 1</div>
+          <div className="font-medium mb-4 text-blue-600">Change Time</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1 mr-4">Level 1</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
                 value={level1time}
                 onChange={(e) => setLevel1Time(e.target.value)}
               />
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleLevelTimeSettings(1)}
             >
               Save
             </div>
           </div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1 mr-4'>Level 2</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1 mr-4">Level 2</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
                 value={level2time}
                 onChange={(e) => setLevel2Time(e.target.value)}
               />
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleLevelTimeSettings(2)}
             >
               Save
             </div>
           </div>
-          <div className='flex w-[70%] justify-between mb-6'>
-            <div className='flex mr-8'>
-              <div className='py-1 mr-4'>Level 3</div>
+          <div className="flex w-[70%] justify-between mb-6">
+            <div className="flex mr-8">
+              <div className="py-1 mr-4">Level 3</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
                 value={level3time}
                 onChange={(e) => setLevel3Time(e.target.value)}
               />
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleLevelTimeSettings(3)}
             >
               Save
             </div>
           </div>
-
-          <div className='font-medium mb-4 text-blue-600'>Bot Settings</div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Number of bots</div>
+          <div className="font-medium mb-4 text-blue-600">Bot Settings</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Number of bots</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
                 value={level1table1Bots}
-                onChange={(e) => setLevel1table1Bots(e.target.value)}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setLevel1table1Bots(value); // Set to max if exceeds
+                  }
+                }}
+                onBlur={() => {
+                  if (level1table1Bots < 0) {
+                    setLevel1table1Bots(0);
+                  }
+                  if (maxLevel1table1Bots < level1table1Bots) {
+                    setLevel1table1Bots(maxLevel1table1Bots); // Reset to current min if necessary
+                  }
+                }}
               />
-              <div className='py-1'>on Level 1 Table 1</div>
+              <div className="py-1">to</div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={maxLevel1table1Bots}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setmaxLevel1table1Bots(value); // Allow immediate update
+                  }
+                }}
+                onBlur={() => {
+                  if (maxLevel1table1Bots < 0) {
+                    setmaxLevel1table1Bots(0);
+                  }
+                  if (maxLevel1table1Bots < level1table1Bots) {
+                    setmaxLevel1table1Bots(level1table1Bots); // Reset to current min if necessary
+                  }
+                }}
+              />
+              <div className="py-1">on Level 1 Table 1</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleBotSettings(1, 1)}
             >
               Save
             </div>
           </div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Number of bots</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Number of bots</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
                 value={level1table2Bots}
-                onChange={(e) => setLevel1table2Bots(e.target.value)}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setLevel1table2Bots(value); // Set to max if exceeds
+                  }
+                }}
+                onBlur={() => {
+                  if (level1table2Bots < 0) {
+                    setLevel1table2Bots(0);
+                  }
+                  if (maxLevel1table2Bots < level1table2Bots) {
+                    setLevel1table2Bots(maxLevel1table2Bots); // Reset to current min if necessary
+                  }
+                }}
               />
-              <div className='py-1'>on Level 1 Table 2</div>
+              <div className="py-1">to</div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={maxLevel1table2Bots}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setmaxLevel1table2Bots(value); // Allow immediate update
+                  }
+                }}
+                onBlur={() => {
+                  if (maxLevel1table2Bots < 0) {
+                    setmaxLevel1table2Bots(0);
+                  }
+                  if (maxLevel1table2Bots < level1table2Bots) {
+                    setmaxLevel1table2Bots(level1table2Bots); // Reset to current min if necessary
+                  }
+                }}
+              />
+              <div className="py-1">on Level 1 Table 2</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleBotSettings(1, 2)}
             >
               Save
             </div>
           </div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Number of bots</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Number of bots</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
                 value={level1table3Bots}
-                onChange={(e) => setLevel1table3Bots(e.target.value)}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setLevel1table3Bots(value); // Set to max if exceeds
+                  }
+                }}
+                onBlur={() => {
+                  if (level1table3Bots < 0) {
+                    setLevel1table3Bots(0);
+                  }
+                  if (maxLevel1table3Bots < level1table3Bots) {
+                    setLevel1table3Bots(maxLevel1table3Bots); // Reset to current min if necessary
+                  }
+                }}
               />
-              <div className='py-1'>on Level 1 Table 3</div>
+              <div className="py-1">to</div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={maxLevel1table3Bots}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setmaxLevel1table3Bots(value); // Allow immediate update
+                  }
+                }}
+                onBlur={() => {
+                  if (maxLevel1table3Bots < 0) {
+                    setmaxLevel1table3Bots(0);
+                  }
+                  if (maxLevel1table3Bots < level1table3Bots) {
+                    setmaxLevel1table3Bots(level1table3Bots); // Reset to current min if necessary
+                  }
+                }}
+              />
+              <div className="py-1">on Level 1 Table 3</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleBotSettings(1, 3)}
             >
               Save
             </div>
           </div>
-
-
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Number of bots</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Number of bots</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
                 value={level2table1Bots}
-                onChange={(e) => setLevel2table1Bots(e.target.value)}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setLevel2table1Bots(value); // Set to max if exceeds
+                  }
+                }}
+                onBlur={() => {
+                  if (level2table1Bots < 0) {
+                    setLevel2table1Bots(0);
+                  }
+                  if (maxLevel2table1Bots < level2table1Bots) {
+                    setLevel2table1Bots(maxLevel2table1Bots); // Reset to current min if necessary
+                  }
+                }}
               />
-              <div className='py-1'>on Level 2 Table 1</div>
+              <div className="py-1">to</div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={maxLevel2table1Bots}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setmaxLevel2table1Bots(value); // Allow immediate update
+                  }
+                }}
+                onBlur={() => {
+                  if (maxLevel2table1Bots < 0) {
+                    setmaxLevel2table1Bots(0);
+                  }
+                  if (maxLevel2table1Bots < level2table1Bots) {
+                    setmaxLevel2table1Bots(level2table1Bots); // Reset to current min if necessary
+                  }
+                }}
+              />
+              <div className="py-1">on Level 2 Table 1</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleBotSettings(2, 4)}
             >
               Save
             </div>
           </div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Number of bots</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Number of bots</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
                 value={level2table2Bots}
-                onChange={(e) => setLevel2table2Bots(e.target.value)}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setLevel2table2Bots(value); // Set to max if exceeds
+                  }
+                }}
+                onBlur={() => {
+                  if (level2table2Bots < 0) {
+                    setLevel2table2Bots(0);
+                  }
+                  if (maxLevel2table2Bots < level2table2Bots) {
+                    setLevel2table2Bots(maxLevel2table2Bots); // Reset to current min if necessary
+                  }
+                }}
               />
-              <div className='py-1'>on Level 2 Table 2</div>
+              <div className="py-1">to</div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={maxLevel2table2Bots}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setmaxLevel2table2Bots(value); // Allow immediate update
+                  }
+                }}
+                onBlur={() => {
+                  if (maxLevel2table2Bots < 0) {
+                    setmaxLevel2table2Bots(0);
+                  }
+                  if (maxLevel2table2Bots < level2table2Bots) {
+                    setmaxLevel2table2Bots(level2table2Bots); // Reset to current min if necessary
+                  }
+                }}
+              />
+              <div className="py-1">on Level 2 Table 2</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleBotSettings(2, 5)}
             >
               Save
             </div>
           </div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Number of bots</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Number of bots</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
                 value={level2table3Bots}
-                onChange={(e) => setLevel2table3Bots(e.target.value)}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setLevel2table3Bots(value); // Set to max if exceeds
+                  }
+                }}
+                onBlur={() => {
+                  if (level2table3Bots < 0) {
+                    setLevel2table3Bots(0);
+                  }
+                  if (maxLevel2table3Bots < level2table3Bots) {
+                    setLevel2table3Bots(maxLevel2table3Bots); // Reset to current min if necessary
+                  }
+                }}
               />
-              <div className='py-1'>on Level 2 Table 3</div>
+              <div className="py-1">to</div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={maxLevel2table3Bots}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setmaxLevel2table3Bots(value); // Allow immediate update
+                  }
+                }}
+                onBlur={() => {
+                  if (maxLevel2table3Bots < 0) {
+                    setmaxLevel2table3Bots(0);
+                  }
+                  if (maxLevel2table3Bots < level2table3Bots) {
+                    setmaxLevel2table3Bots(level2table3Bots); // Reset to current min if necessary
+                  }
+                }}
+              />
+              <div className="py-1">on Level 2 Table 3</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleBotSettings(2, 6)}
             >
               Save
             </div>
           </div>
-
-
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Number of bots</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Number of bots</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
                 value={level3table1Bots}
-                onChange={(e) => setLevel3table1Bots(e.target.value)}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setLevel3table1Bots(value); // Set to max if exceeds
+                  }
+                }}
+                onBlur={() => {
+                  if (level3table1Bots < 0) {
+                    setLevel3table1Bots(0);
+                  }
+                  if (maxLevel3table1Bots < level3table1Bots) {
+                    setLevel3table1Bots(maxLevel3table1Bots); // Reset to current min if necessary
+                  }
+                }}
               />
-              <div className='py-1'>on Level 3 Table 1</div>
+              <div className="py-1">to</div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={maxLevel3table1Bots}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setmaxLevel3table1Bots(value); // Allow immediate update
+                  }
+                }}
+                onBlur={() => {
+                  if (maxLevel3table1Bots < 0) {
+                    setmaxLevel3table1Bots(0);
+                  }
+                  if (maxLevel3table1Bots < level3table1Bots) {
+                    setmaxLevel3table1Bots(level3table1Bots); // Reset to current min if necessary
+                  }
+                }}
+              />
+              <div className="py-1">on Level 3 Table 1</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleBotSettings(3, 7)}
             >
               Save
             </div>
           </div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Number of bots</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Number of bots</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
                 value={level3table2Bots}
-                onChange={(e) => setLevel3table2Bots(e.target.value)}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setLevel3table2Bots(value); // Set to max if exceeds
+                  }
+                }}
+                onBlur={() => {
+                  if (level3table2Bots < 0) {
+                    setLevel3table2Bots(0);
+                  }
+                  if (maxLevel3table2Bots < level3table2Bots) {
+                    setLevel3table2Bots(maxLevel3table2Bots); // Reset to current min if necessary
+                  }
+                }}
               />
-              <div className='py-1'>on Level 3 Table 2</div>
+              <div className="py-1">to</div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={maxLevel3table2Bots}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setmaxLevel3table2Bots(value); // Allow immediate update
+                  }
+                }}
+                onBlur={() => {
+                  if (maxLevel3table2Bots < 0) {
+                    setmaxLevel3table2Bots(0);
+                  }
+                  if (maxLevel3table2Bots < level3table2Bots) {
+                    setmaxLevel3table2Bots(level3table2Bots); // Reset to current min if necessary
+                  }
+                }}
+              />
+              <div className="py-1">on Level 3 Table 2</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleBotSettings(3, 8)}
             >
               Save
             </div>
           </div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1'>Number of bots</div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Number of bots</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
                 value={level3table3Bots}
-                onChange={(e) => setLevel3table3Bots(e.target.value)}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setLevel3table3Bots(value); // Set to max if exceeds
+                  }
+                }}
+                onBlur={() => {
+                  if (level3table3Bots < 0) {
+                    setLevel3table3Bots(0);
+                  }
+                  if (maxLevel3table3Bots < level3table3Bots) {
+                    setLevel3table3Bots(maxLevel3table3Bots); // Reset to current min if necessary
+                  }
+                }}
               />
-              <div className='py-1'>on Level 3 Table 3</div>
+              <div className="py-1">to</div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={maxLevel3table3Bots}
+                onChange={(e) => {
+                  const value = Number(e.target.value);
+                  if (!isNaN(value)) {
+                    setmaxLevel3table3Bots(value); // Allow immediate update
+                  }
+                }}
+                onBlur={() => {
+                  if (maxLevel3table3Bots < 0) {
+                    setmaxLevel3table3Bots(0);
+                  }
+                  if (maxLevel3table3Bots < level3table3Bots) {
+                    setmaxLevel3table3Bots(level3table3Bots); // Reset to current min if necessary
+                  }
+                }}
+              />
+              <div className="py-1">on Level 3 Table 3</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleBotSettings(3, 9)}
             >
               Save
             </div>
-          </div> */}
+          </div>{' '}
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Bot update time: </div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={botUpdateTime}
+                onChange={(e) => {
+                  setBotUpdateTime(e.target.value);
+                }}
+              />
+              <div className="py-1">seconds</div>
+            </div>
 
+
+            <div
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
+              onClick={() => updateBotTime()}
+            >
+              Save
+            </div>
+          </div>{' '}
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1">Total cycle time: </div>
+              <input
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
+                type="number"
+                value={totalCycleTime}
+                onChange={(e) => {
+                  setTotalCycleTime(e.target.value);
+                }}
+              />
+              <div className="py-1">hrs</div>
+            </div>
+
+
+            <div
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
+              onClick={() => updateTotalCycleTime()}
+            >
+              Save
+            </div>
+          </div>{' '}
           {/* <div className='flex w-[70%] justify-between mb-6'>
             <div className='flex mr-8'>
               <div className='py-1'>Bot Winning</div>
@@ -886,6 +1458,7 @@ const SettingsPage = () => {
               <div className='py-1'>%</div>
             </div>
 
+
             <div
               className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
               onClick={() => handleBotSettings(4, 0)}
@@ -895,74 +1468,71 @@ const SettingsPage = () => {
           </div> */}
         </div>
 
-        <hr className='h-[2px] bg-gray-400'></hr>
 
-        
+        <hr className="h-[2px] bg-gray-400"></hr>
+
+
         <div>
-          <div className='font-semibold my-4 text-blue-600 flex'>
+          <div className="font-semibold my-4 text-blue-600 flex">
             PAYMENT SETTINGS{' '}
-            <AdjustmentsHorizontalIcon className='w-5 h-5 mt-[3px] ml-2' />{' '}
+            <AdjustmentsHorizontalIcon className="w-5 h-5 mt-[3px] ml-2" />{' '}
           </div>
-          <div className='flex w-[70%] justify-between mb-4'>
-            <div className='flex mr-8'>
-              <div className='py-1 mr-4'>Withdraw Platform fee </div>
+          <div className="flex w-[70%] justify-between mb-4">
+            <div className="flex mr-8">
+              <div className="py-1 mr-4">Withdraw Platform fee </div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[70px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[70px]"
                 value={withdrawFee}
                 onChange={(e) => setWithdrawFee(e.target.value)}
               />
-              <div className='py-1 mr-4'>%</div>
+              <div className="py-1 mr-4">%</div>
             </div>
 
+
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handlePaymentSettings(1)}
             >
               Save
             </div>
           </div>
-          <div className='flex w-[70%] justify-between mb-6'>
-            
-            <div className='flex mr-8'>
-              <div className='py-1 mr-4'>Admin Wallet </div>
+          <div className="flex w-[70%] justify-between mb-6">
+            <div className="flex mr-8">
+              <div className="py-1 mr-4">Admin Wallet </div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[300px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[300px]"
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
               />
             </div>
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handlePaymentSettings(2)}
             >
               Save
             </div>
-            
           </div>
-          <div className='flex w-[70%] justify-between mb-6'>
-            
-            <div className='flex mr-8'>
-              <div className='py-1 mr-4'>Master Key</div>
+          <div className="flex w-[70%] justify-between mb-6">
+            <div className="flex mr-8">
+              <div className="py-1 mr-4">Master Key</div>
               <input
-                className='mx-2 border border-gray-300 rounded-md px-2 w-[300px]'
+                className="mx-2 border border-gray-300 rounded-md px-2 w-[300px]"
                 value={newMasterKey}
                 onChange={(e) => setNewMasterKey(e.target.value)}
               />
             </div>
             <div
-              className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
+              className="border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800"
               onClick={() => handleChangeMasterKey()}
             >
               Save
             </div>
-            
           </div>
-                  
         </div>
 
 
-        <hr className='h-[2px] bg-gray-400'></hr>
-{/* 
+        <hr className="h-[2px] bg-gray-400"></hr>
+        {/*
         <div>
           <div className='font-semibold my-4 text-blue-600 flex'>
             REWARDS SETTINGS{' '}
@@ -974,6 +1544,7 @@ const SettingsPage = () => {
               <div className='py-1 mr-1'>Referral bonus </div>
             </div>
 
+
             <div className='flex mr-8'>
               <div className='py-1 mr-2'>€</div>
               <input
@@ -983,6 +1554,7 @@ const SettingsPage = () => {
               />
             </div>
 
+
             <div
               className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
               onClick={() => handleRewardSettings(1)}
@@ -990,6 +1562,7 @@ const SettingsPage = () => {
               Save
             </div>
           </div>
+
 
           <div className='font-medium text-blue-600 py-1 mr-3 '>Reward 2 </div>
           <div className='flex  w-[70%] justify-between mb-4'>
@@ -1003,6 +1576,7 @@ const SettingsPage = () => {
               <div className='py-1 mr-4'>times</div>
             </div>
 
+
             <div className='flex mr-8'>
               <div className='py-1 mr-1'>BONUS €</div>
               <input
@@ -1013,6 +1587,7 @@ const SettingsPage = () => {
               <div className='py-1 mr-4'></div>
             </div>
 
+
             <div
               className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
               onClick={() => handleRewardSettings(2)}
@@ -1021,11 +1596,13 @@ const SettingsPage = () => {
             </div>
           </div>
 
+
           <div className='font-medium text-blue-600 py-1 mr-3 '>Reward 3 </div>
           <div className='flex  w-[70%] justify-between mb-4'>
             <div className='flex mr-8'>
               <div className='py-1 mr-1'>Unlock 2 star tables </div>
             </div>
+
 
             <div className='flex mr-8'>
               <div className='py-1 mr-2'>BONUS</div>
@@ -1037,6 +1614,7 @@ const SettingsPage = () => {
               <div className='py-1 mr-4'>%</div>
             </div>
 
+
             <div
               className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
               onClick={() => handleRewardSettings(3)}
@@ -1045,11 +1623,13 @@ const SettingsPage = () => {
             </div>
           </div>
 
+
           <div className='font-medium text-blue-600 py-1 mr-3 '>Reward 4 </div>
           <div className='flex  w-[70%] justify-between mb-4'>
             <div className='flex mr-8'>
               <div className='py-1 mr-1'>Unlock 3 star tables </div>
             </div>
+
 
             <div className='flex mr-8'>
               <div className='py-1 mr-2'>BONUS</div>
@@ -1061,6 +1641,7 @@ const SettingsPage = () => {
               <div className='py-1 mr-4'>%</div>
             </div>
 
+
             <div
               className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
               onClick={() => handleRewardSettings(4)}
@@ -1068,6 +1649,7 @@ const SettingsPage = () => {
               Save
             </div>
           </div>
+
 
           <div className='font-medium text-blue-600 py-1 mr-3 '>Reward 5 </div>
           <div className='flex  w-[70%] justify-between mb-4'>
@@ -1081,6 +1663,7 @@ const SettingsPage = () => {
               <div className='py-1 mr-4'>hour(s)</div>
             </div>
 
+
             <div className='flex mr-8'>
               <div className='py-1 mr-1'>BONUS €</div>
               <input
@@ -1090,6 +1673,7 @@ const SettingsPage = () => {
               />
               <div className='py-1 mr-4'></div>
             </div>
+
 
             <div
               className='border rounded-md bg-blue-500 text-white cursor-pointer px-4 py-1 hover:bg-blue-600 active:bg-blue-800'
@@ -1103,14 +1687,18 @@ const SettingsPage = () => {
     )
   ) : (
     <div>
-      <div className='flex flex-col justify-center h-[70vh] text-center items-center'>
-        <div className='font-bold text-[21px] mb-[20px]'>Not Authorised</div>
-        <Link to='/login' className='text-blue-500 font-bold'>
+      <div className="flex flex-col justify-center h-[70vh] text-center items-center">
+        <div className="font-bold text-[21px] mb-[20px]">Not Authorised</div>
+        <Link to="/login" className="text-blue-500 font-bold">
           Go back
         </Link>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SettingsPage
+
+export default SettingsPage;
+
+
+

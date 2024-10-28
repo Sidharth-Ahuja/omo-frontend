@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useEffect} from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import BottomNav from './components/BottomNav/BottomNav'
 import AdminSideNav from './components/AdminSideBar'
@@ -30,10 +30,22 @@ import AccountingPage from './pages/AdminControl/pages/AccountingPage'
 import AutoEmailPage from './pages/AdminControl/pages/AutoEmailPage/AutoEmailPage'
 import { useRecoilState } from 'recoil'
 import { DarkMode } from './atom/Atom'
+import trackUserPresence from '../userTracking'
 
 function App() {
 
   const [isDarkMode, setIsDarkMode] = useRecoilState(DarkMode);
+
+  useEffect(() => {
+    const userId = Math.random().toString(36).substring(7); // Generate a unique user ID or use authentication ID
+
+    // Track user presence
+    const cleanup = trackUserPresence(userId);
+
+    // Cleanup function to be called on unmount
+    return cleanup;
+  }, []);
+
 
   // All user , Active user , Transaction , withdraw, Reported Issue and doc verification:- notification icon
   return (
@@ -54,6 +66,7 @@ function App() {
           <Route path='/deposit' element={<DepositPage />} />
           <Route path='/rewards' element={<RewardsPage />} />
           <Route path='/withdraw' element={<WithdrawPage />} />
+          <Route path='/live' element={<ChooseTablePage/>} />
 
           <Route path='/admin/allUsers' element={<AppUsersPage />} />
           <Route path='/admin/activeUsers' element={<ActiveUsersPage />} />

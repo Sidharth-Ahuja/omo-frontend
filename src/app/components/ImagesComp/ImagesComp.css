@@ -1,0 +1,134 @@
+/* Define the flip animation */
+@keyframes flip {
+    0% {
+      transform: perspective(1000px) rotateY(0deg);
+      /* transform: scaleX(-1); */
+    }
+    50% {
+      transform: perspective(1000px) rotateY(-90deg);
+      /* transform: scaleX(-1); */
+    }
+    100% {
+      transform: perspective(1000px) rotateY(-180deg);
+      /* transform: scaleX(-1); */
+    }
+  }
+
+@keyframes winningAmount {
+     0% {
+        transform: translateY(100px);
+        opacity: 0;
+     }
+     50%{
+        transform: translateY(0px);
+        opacity: 1;
+     }
+     100%{
+        transform: translateY(-100px);
+        opacity: 0;
+     }
+}  
+
+  .flip-animation {
+    animation: flip 1s forwards ease-in-out;
+    transform-style: preserve-3d;
+  }
+  
+
+.imageContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100vw; 
+    height: 85vh;
+    transition: transform 1s ease-in-out; 
+    width: 100%;
+}
+
+.image {
+    width: 100%;
+    height: 100% !important;
+    border: 1px solid white;
+    /* background: white; */
+}
+.resistClick{
+    pointer-events: none;
+}
+video{
+    object-fit: fill;
+}
+
+/* Add this to your ImagesComp.css */
+.locked {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.removeRightBorder{
+    border-right: 0;
+}
+.removeLeftBorder{
+    border-left: 0;
+}
+.locked img {
+    width: 600px; /* Adjust the size as needed */
+    height: auto;
+}
+.clickCountsDisplay{
+    color: black;
+    display: none;
+}
+
+.percentages{
+    position: absolute;
+    bottom: 50px;
+    background-color: #ed264f;
+    border-radius: 24px;
+    padding: 12px 20px;
+    font-size: 16px;
+    color: white;
+}
+
+.fullScreenGif{
+    margin-top: 50%;
+    height: auto;
+}
+.fullSize{
+    width: calc(100vw - 2px);
+}
+
+.hideImage{
+    opacity: 0;
+    z-index: 1;
+}
+.dimBg{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+.showWinningAmount{
+    position: absolute;
+    display: flex;
+    align-items: center;
+    width: 50%;
+    height: 80%;
+    justify-content: center;
+    font-size: 50px;
+    animation: winningAmount 2s;
+    opacity: 0;
+}
+.leftDirection{
+    left: 0;
+}
+.rightDirection{
+    right: 0;
+}
+.hideCoin{
+    display: none;
+}

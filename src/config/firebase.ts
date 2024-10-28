@@ -27,6 +27,7 @@ const firebaseConfig = {
   databaseURL: "https://omo-v1-default-rtdb.asia-southeast1.firebasedatabase.app/"
 };
 
-const app = initializeApp(firebaseConfig)
+const app2 = initializeApp(firebaseConfig);
 
-export default app
+export default app2;
+

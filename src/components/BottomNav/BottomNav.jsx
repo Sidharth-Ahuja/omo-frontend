@@ -16,7 +16,7 @@ const BottomNav = () => {
         ? 1
         : path === '/deposit'
         ? 2
-        : path === '/deposit'
+        : path === '/live' || path.includes("table")
         ? 3
         : path === '/rewards'
         ? 4
@@ -57,9 +57,9 @@ const BottomNav = () => {
           <div className='text-center cursor-pointer  basis-1/5 flex-col py-1'>
             <BottomNavItem title={formatMessage({id: 'Deposit'})} path='/deposit' index={2} />
           </div>
-          {/* <div className='text-center cursor-pointer basis-1/5 flex-col py-1'>
-            <BottomNavItem title={formatMessage({id: 'GoLive'})} path='/deposit' index={3} />
-          </div> */}
+          <div className='text-center cursor-pointer basis-1/5 flex-col py-1'>
+            <BottomNavItem title={formatMessage({id: 'GoLive'})} path='/live' index={3} />
+          </div>
           <div className='text-center cursor-pointer basis-1/5 flex-col py-1'>
             <BottomNavItem title={formatMessage({id: 'Rewards'})} path='/rewards' index={4} />
           </div>
