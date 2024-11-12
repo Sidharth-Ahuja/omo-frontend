@@ -54,19 +54,19 @@ const Table = ({
   const maxBots = maxBotsSnapshot?._node?.value_;
   const totalCycleTime = totalCycleTimeSnapshot?._node?.value_;
   const botUpdateTime = botUpdateTimeSnapshot?._node?.value_;
- 
+  
   const [bots, setBots] = useState(minBots);
   const [loading, setLoading] = useState(true); // Loading state
- 
-  let timePeriod = 24 * 60 * 60 * 1000; // Total time period (default 24 hrs)
- 
+  
+  let timePeriod = totalCycleTime * 60 * 60 * 1000; // Total time period
+  
   // Use effect to set the time period based on totalCycleTime
   useEffect(() => {
     if (totalCycleTime) {
       timePeriod = totalCycleTime * 60 * 60 * 1000;
     }
   }, [totalCycleTime]);
- 
+  
   const intervalRef = useRef(null);
  
   useEffect(() => {
