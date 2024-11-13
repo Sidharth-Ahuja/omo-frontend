@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useObject } from 'react-firebase-hooks/database';
 import { useAtom } from 'jotai'
 import {
   LockClosedIcon,
@@ -44,6 +45,12 @@ const Table = ({
   const [isSpectator, setIsSpectator] = useAtom(InputIsSpectator)
   const [tableAmountMain, setTableAmountMain] = useAtom(InputTableAmount)
   const [tableLockChoice, setTableLockChoice] = useAtom(InputTableLockChoice)
+
+  const [bots, setBots] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const intervalRef = useRef(null);
+
   const navigate = useNavigate()
   const [isDarkMode, setIsDarkMode] = useRecoilState(DarkMode);
 
@@ -51,7 +58,65 @@ const Table = ({
     ref(database, `users/table${tableNum}/players`)
   )
 
-  console.log("snapshotsTable", snapshotsTable.docs);
+  const paths = {
+    minBots: `users/table${tableNum}/minBots`,
+    maxBots: `users/table${tableNum}/maxBots`,
+    totalCycleTime: `users/totalCycleTime`,
+    botUpdateTime: `users/botUpdateTime`,
+  };
+
+  const [minBotsSnapshot] = useObject(ref(database, paths.minBots));
+  const [maxBotsSnapshot] = useObject(ref(database, paths.maxBots));
+  const [totalCycleTimeSnapshot] = useObject(ref(database, paths.totalCycleTime));
+  const [botUpdateTimeSnapshot] = useObject(ref(database, paths.botUpdateTime));
+
+  const minBots = minBotsSnapshot?.val() ?? 0;
+  const maxBots = maxBotsSnapshot?.val() ?? 0;
+  const totalCycleTime = totalCycleTimeSnapshot?.val() ?? 24; // Default 24 hour
+  const botUpdateTime = botUpdateTimeSnapshot?.val() ?? 60; // Default 60 seconds
+
+  useEffect(() => {
+    // Stop if loading or invalid data
+    if (loading || minBots == null || maxBots == null || totalCycleTime == null || botUpdateTime == null) return;
+
+    const timePeriod = totalCycleTime * 60 * 60 * 1000; // Convert hours to milliseconds
+
+    const updateBots = () => {
+      const fraction = ((Date.now()/10) % timePeriod) / timePeriod;
+      let currentBots;
+
+      // Calculate bots based on the cycle phase
+      if (fraction < 0.5) {
+        currentBots = minBots + (maxBots - minBots) * (fraction * 2);
+      } else {
+        currentBots = maxBots - (maxBots - minBots) * ((fraction - 0.5) * 2);
+      }
+
+      // Apply randomness and enforce bounds
+      const randomness = Math.floor(((Date.now() / 10000) + tableNum) % 7) - 3; // Randomness within [-3, 3]
+      currentBots = Math.min(
+        Math.max(Math.round(currentBots + randomness), minBots),
+        maxBots
+      );
+      setBots(currentBots);
+    };
+
+    // Initial call and interval setup
+    updateBots();
+    intervalRef.current = setInterval(updateBots, botUpdateTime * 1000);
+
+    // Cleanup on unmount
+    return () => clearInterval(intervalRef.current);
+  }, [loading, minBots, maxBots, totalCycleTime, botUpdateTime]);
+
+  // Monitor loading state
+  useEffect(() => {
+    if (minBots!=null && maxBots!=null && totalCycleTime!=null && botUpdateTime!=null) {
+      setLoading(false);
+    }
+  }, [minBots, maxBots, totalCycleTime, botUpdateTime]);
+
+  // console.log("snapshotsTable", snapshotsTable.docs);
   const findUniqueSnapshots = (snapshots) => {
     var uniqueSnapshots = snapshots?.filter(
       (snapshots, index, self) =>
@@ -106,7 +171,7 @@ const Table = ({
 
     const max = findUniqueSnapshots(snapshotsTable)?.length;
     const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
-    console.log(randomNumber);
+    // console.log(randomNumber);
     setRandomNum(randomNumber);
   }
 
@@ -144,7 +209,8 @@ const Table = ({
             <div className='flex justify-center'>
               <UserIcon className='h-3 w-3 mr-[2px] mt-[4px] text-[17px]' />
               <span className='text-[13px] font-bold'>
-                {showRandom ? randomNum : findUniqueSnapshots(snapshotsTable)?.length}
+                {/* {showRandom ? randomNum : findUniqueSnapshots(snapshotsTable)?.length} */}
+                {bots}
               </span>
             </div>
           </div>
