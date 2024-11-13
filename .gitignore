@@ -7,20 +7,40 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
+# Node modules
+node_modules/
 
-dist-ssr
-*.local
+# Build output
+build/
+dist/
+dist-ssr/
+
+# System files
+.DS_Store
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
+.vscode/
+.idea/
+
+# Specific IDE/editor config files
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Firebase-related files (ignore Firebase-specific files)
 .firebase/
-.package-lock.json
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Local environment files (optional)
+*.local
+.env.local
+.env.*
+
+# TypeScript or other language-specific compiled files (optional)
+*.tsbuildinfo
