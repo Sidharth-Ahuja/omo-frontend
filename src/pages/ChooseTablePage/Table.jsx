@@ -20,7 +20,7 @@ import {
 } from '.'
 import app from '../../config/firebase'
 import { useList } from 'react-firebase-hooks/database'
-import { ref, set, get, getDatabase } from 'firebase/database'
+import { ref, set, get, getDatabase, onValue } from 'firebase/database'
 import { useRecoilState } from 'recoil'
 import { DarkMode } from '../../atom/Atom'
 
@@ -45,6 +45,7 @@ const Table = ({
   const [isSpectator, setIsSpectator] = useAtom(InputIsSpectator)
   const [tableAmountMain, setTableAmountMain] = useAtom(InputTableAmount)
   const [tableLockChoice, setTableLockChoice] = useAtom(InputTableLockChoice)
+  const [liveUserCount, setLiveUserCount] = useState(0)
 
   const [bots, setBots] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -74,7 +75,7 @@ const Table = ({
   const maxBots = maxBotsSnapshot?.val() ?? 0;
   const totalCycleTime = totalCycleTimeSnapshot?.val() ?? 24; // Default 24 hour
   const botUpdateTime = botUpdateTimeSnapshot?.val() ?? 60; // Default 60 seconds
-
+  
   useEffect(() => {
     // Stop if loading or invalid data
     if (loading || minBots == null || maxBots == null || totalCycleTime == null || botUpdateTime == null) return;
@@ -82,7 +83,7 @@ const Table = ({
     const timePeriod = totalCycleTime * 60 * 60 * 1000; // Convert hours to milliseconds
 
     const updateBots = () => {
-      const fraction = ((Date.now()/10) % timePeriod) / timePeriod;
+      const fraction = ((Date.now()) % timePeriod) / timePeriod;
       let currentBots;
 
       // Calculate bots based on the cycle phase
@@ -93,7 +94,7 @@ const Table = ({
       }
 
       // Apply randomness and enforce bounds
-      const randomness = Math.floor(((Date.now() / 10000) + tableNum) % 7) - 3; // Randomness within [-3, 3]
+      const randomness = Math.floor(((Date.now() / 15000) + tableNum) % 7) - 3; // Randomness within [-3, 3]
       currentBots = Math.min(
         Math.max(Math.round(currentBots + randomness), minBots),
         maxBots
@@ -194,6 +195,27 @@ const Table = ({
     console.log('Interval stopped after', numberOfRepetitions, 'repetitions.');
   }, intervalTime * numberOfRepetitions);
 
+  useEffect(() => {
+    const liveUsersCountRef = ref(database, `tables/table${tableNum}/liveUsers`);
+
+    // Listen for changes to liveUsers and update the UI
+    const unsubscribe = onValue(liveUsersCountRef, (snapshot) => {
+      const liveUserData = snapshot.val() || {};
+      let liveUserCount = 0;
+
+      // Count unique users by counting the number of unique session IDs per user
+      Object.keys(liveUserData).forEach((user) => {
+        // liveUserCount += liveUserData[user].length;
+        liveUserCount += 1;
+      });
+
+      setLiveUserCount(liveUserCount); // Update liveUserCount in state
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <div
@@ -210,7 +232,7 @@ const Table = ({
               <UserIcon className='h-3 w-3 mr-[2px] mt-[4px] text-[17px]' />
               <span className='text-[13px] font-bold'>
                 {/* {showRandom ? randomNum : findUniqueSnapshots(snapshotsTable)?.length} */}
-                {bots}
+                {bots + liveUserCount}
               </span>
             </div>
           </div>
