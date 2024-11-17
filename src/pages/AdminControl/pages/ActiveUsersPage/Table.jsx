@@ -10,7 +10,7 @@ import {
 
 import app from '../../../../config/firebase';
 import { useList, useObject } from 'react-firebase-hooks/database';
-import { ref, set, get, getDatabase } from 'firebase/database';
+import { ref, set, get, getDatabase, onValue } from 'firebase/database';
 
 
 const database = getDatabase(app);
@@ -43,6 +43,29 @@ const Table = ({
     return uniqueSnapshots;
   };
 
+  
+  const [liveUserCount, setLiveUserCount] = useState(0)
+  useEffect(() => {
+    const liveUsersCountRef = ref(database, `tables/table${tableNum}/liveUsers`);
+
+    // Listen for changes to liveUsers and update the UI
+    const unsubscribe = onValue(liveUsersCountRef, (snapshot) => {
+      const liveUserData = snapshot.val() || {};
+      let liveUserCount = 0;
+
+      // Count unique users by counting the number of unique session IDs per user
+      Object.keys(liveUserData).forEach((user) => {
+        // liveUserCount += liveUserData[user].length;
+        liveUserCount += 1;
+      });
+
+      setLiveUserCount(liveUserCount); // Update liveUserCount in state
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   return (
     <div
@@ -59,7 +82,7 @@ const Table = ({
               <UserIcon className="h-3 w-3 mr-[2px] mt-[4px] text-[17px]" />
               <span className="text-[13px] font-bold">
                 {/* {findUniqueSnapshots(snapshotsTable)?.length-NO_OF_BOTS} */}
-                0
+                {liveUserCount}
               </span>
             </div>
           </div>
