@@ -10,15 +10,22 @@ import {
   getFirestore,
   serverTimestamp,
 } from 'firebase/firestore'
+import { atom, useAtom } from 'jotai'
+import Popup, {
+  InputIsModalOpen,
+  InputModalContent,
+  InputModalHeader,
+  InputModalType,
+} from '../../components/Popup'
+import { InputDocsVerified, InputPlatformFeePerc } from '.'
 import { CheckBadgeIcon } from '@heroicons/react/24/outline'
-import { useAtom } from 'jotai'
-import { InputPlatformFeePerc } from '.'
 import { generateRandomInvoiceId } from '../../utils/helpers/helper'
 import { useRecoilState } from 'recoil'
 import { DarkMode } from '../../atom/Atom'
 import RightDarkButton from '../../components/DarkModeButton/RightDarkButton'
 const fireStore = getFirestore(app)
 
+export const InputFromWithdrawPage = atom(false)
 const StripeWithdraw = () => {
   const [amount, setAmount] = useState('')
   const [platformFeePercentage, setPlatformFeePercentage] =
@@ -32,6 +39,13 @@ const StripeWithdraw = () => {
   const [message, setMessage] = useState('')
   const [error, setError] = useState(false)
   const [isDarkMode, setIsDarkMode] = useRecoilState(DarkMode)
+  const [isVerified, setIsVerified] = useAtom(InputDocsVerified)
+  const [modalOpen, setModalOpen] = useAtom(InputIsModalOpen)
+  const [modalHeader, setModalHeader] = useAtom(InputModalHeader)
+  const [modalContent, setModalContent] = useAtom(InputModalContent)
+  const [modalType, setModalType] = useAtom(InputModalType)
+  const [fromWithdrawPage, setFromWithdrawPage] = useAtom(InputFromWithdrawPage)
+
 
   const userAuthID = localStorage.getItem('userAuthID')
   const userRef = userAuthID ? doc(fireStore, 'users', userAuthID) : null
@@ -89,6 +103,16 @@ const StripeWithdraw = () => {
       setError(true)
       setRemainingAmt(totalBalance)
       setMessage('Withdraw not possible')
+    } else if (!isVerified) {
+      setError(true)
+      setMessage('Verify Documents')
+      setModalOpen(true);
+      setModalHeader("Verify Documents");
+      setModalContent(
+        "Please verify your documents before proceeding with the withdrawal process. Thank you."
+      );
+      setModalType("verifyDoc");
+      setFromWithdrawPage(true);
     } else {
       setError(false)
       const transactionRef = doc(collection(userRef, 'transactions'))
@@ -119,94 +143,97 @@ const StripeWithdraw = () => {
   }
 
   return (
-    <div>
+    <>
       <div>
-        <div className='flex flex-col px-4 py-4'>
-          <div className='flex justify-between pb-[40px]'>
-            <div>Withdrawable amount</div>
-            <div>€ {totalBalance}</div>
-          </div>
+        <div>
+          <div className='flex flex-col px-4 py-4'>
+            <div className='flex justify-between pb-[40px]'>
+              <div>Withdrawable amount</div>
+              <div>€ {totalBalance}</div>
+            </div>
 
-          <div className='flex justify-between pb-[40px]'>
-            <div className=''>
-              <span>Withdraw Amount</span>
-              <div className='flex'>
-                <InfoIcon
-                  width='14px'
-                  height='14px'
-                  fill='gray'
-                  className='mt-[4px] mr-[6px]'
+            <div className='flex justify-between pb-[40px]'>
+              <div className=''>
+                <span>Withdraw Amount</span>
+                <div className='flex'>
+                  <InfoIcon
+                    width='14px'
+                    height='14px'
+                    fill='gray'
+                    className='mt-[4px] mr-[6px]'
+                  />
+                  <span className='text-[14px] text-gray-600'>Minimum €5</span>
+                </div>
+              </div>
+              <div className='flex mt-[5px]'>
+                <span className='mt-[2px] mr-[10px]'>€</span>
+                <input
+                  placeholder=''
+                  value={amount}
+                  onChange={(e) => handleOnChangeAmount(e.target.value)}
+                  className={' text-center h-[35px] px-[8px] w-[66px] border border-gray-400 rounded-l-[5px]  focus:outline-none focus:ring-[1px] ' + (isDarkMode ? " text-white golden bg-black" : "focus:ring-blue-500 focus:border-blue-500")}
                 />
-                <span className='text-[14px] text-gray-600'>Minimum €5</span>
+                <div
+                  className={'px-2 py-1 h-[35px] rounded-r-md cursor-pointer font-semibold text-white ' + (isDarkMode ? " golden bg-gray-400" : "bg-gray-400")}
+                  onClick={handleMaxClick}
+                >
+                  Max
+                </div>
               </div>
             </div>
-            <div className='flex mt-[5px]'>
-              <span className='mt-[2px] mr-[10px]'>€</span>
-              <input
-                placeholder=''
-                value={amount}
-                onChange={(e) => handleOnChangeAmount(e.target.value)}
-                className={' text-center h-[35px] px-[8px] w-[66px] border border-gray-400 rounded-l-[5px]  focus:outline-none focus:ring-[1px] ' + (isDarkMode ? " text-white golden bg-black" : "focus:ring-blue-500 focus:border-blue-500")}
-              />
-              <div
-                className={'px-2 py-1 h-[35px] rounded-r-md cursor-pointer font-semibold text-white ' + (isDarkMode ? " golden bg-gray-400" : "bg-gray-400")}
-                onClick={handleMaxClick}
-              >
-                Max
-              </div>
+
+            <div className='flex justify-between text-red-600 pb-[40px]'>
+              <div className=''>- Platform Free ({platformFeePercentage}%)</div>
+              <div> € {platformFee} </div>
+            </div>
+
+            <div className='flex justify-between pb-[40px]'>
+              <div>Remaining Balance</div>
+              <div>€{remainingAmt}</div>
             </div>
           </div>
 
-          <div className='flex justify-between text-red-600 pb-[40px]'>
-            <div className=''>- Platform Free ({platformFeePercentage}%)</div>
-            <div> € {platformFee} </div>
-          </div>
+          <div className='w-full flex justify-center pb-[40px]'>
+            {
+              isDarkMode ?
+                <button onClick={handleOnClickWithdraw} className='w-[40%] rounded-full'>
 
-          <div className='flex justify-between pb-[40px]'>
-            <div>Remaining Balance</div>
-            <div>€{remainingAmt}</div>
+                  <RightDarkButton title={withdrawLoading ? "Loading..." : "Withdraw"} />
+                </button>
+                :
+                <button
+                  className='w-[40%] bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full'
+                  onClick={handleOnClickWithdraw}
+                >
+                  {withdrawLoading ? <span>Loading...</span> : <span>Wthdraw</span>}
+                </button>
+            }
+
           </div>
+          {showMessage && (
+            <div className=' flex justify-center mb-[10px]'>
+              {error ? (
+                <ExclamationIcon
+                  width='20px'
+                  height='20px'
+                  className='mt-[2px] mr-[6px] text-red-500'
+                />
+              ) : (
+                <CheckBadgeIcon
+                  width='18px'
+                  height='18px'
+                  className='mt-[2px] mr-[6px] text-red-500'
+                />
+              )}
+              <span className='text-red-500 text-[14px] font-semibold'>
+                {message}
+              </span>
+            </div>
+          )}
         </div>
-
-        <div className='w-full flex justify-center pb-[40px]'>
-          {
-            isDarkMode ?
-              <button onClick={handleOnClickWithdraw} className='w-[40%] rounded-full'>
-
-                <RightDarkButton title={withdrawLoading ? "Loading..." : "Withdraw"} />
-              </button>
-              :
-              <button
-                className='w-[40%] bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full'
-                onClick={handleOnClickWithdraw}
-              >
-                {withdrawLoading ? <span>Loading...</span> : <span>Wthdraw</span>}
-              </button>
-          }
-
-        </div>
-        {showMessage && (
-          <div className=' flex justify-center mb-[10px]'>
-            {error ? (
-              <ExclamationIcon
-                width='20px'
-                height='20px'
-                className='mt-[2px] mr-[6px] text-red-500'
-              />
-            ) : (
-              <CheckBadgeIcon
-                width='18px'
-                height='18px'
-                className='mt-[2px] mr-[6px] text-red-500'
-              />
-            )}
-            <span className='text-red-500 text-[14px] font-semibold'>
-              {message}
-            </span>
-          </div>
-        )}
       </div>
-    </div>
+      <Popup />
+    </>
   )
 }
 
