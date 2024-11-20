@@ -79,17 +79,19 @@ const RealTimeUsers = () => {
       const fraction = ((Date.now()) % timePeriod) / timePeriod
       let currentBots
       
+      // Apply randomness and enforce bounds
+      let randomness = Math.floor(((Date.now()) + tableNum) % 7) - 3 // Randomness within [-3, 3]
       // Calculate bots based on the cycle phase
       if (fraction < 0.5) {
-        currentBots = minBots + (maxBots - minBots) * (fraction * 2)
+        currentBots = minBots + ((maxBots - minBots) * (fraction * 2))
+        randomness--;
       } else {
-        currentBots = maxBots - (maxBots - minBots) * ((fraction - 0.5) * 2)
+        currentBots = maxBots - ((maxBots - minBots) * ((fraction - 0.5) * 2))
+        randomness++;
       }
       
-      // Apply randomness and enforce bounds
-      const randomness = Math.floor(((Date.now() / 15000) + tableNum) % 7) - 3 // Randomness within [-3, 3]
       currentBots = Math.min(
-        Math.max(Math.round(currentBots + randomness), minBots),
+        Math.max(Math.round(currentBots) + randomness, minBots),
         maxBots
       )
       setBots(currentBots)
@@ -169,7 +171,10 @@ const RealTimeUsers = () => {
       
       return () => {
         window.removeEventListener("beforeunload", handleBeforeUnload);
-        cleanupUserSession();
+        const deacreaseUserLiveCount = async() => {
+          await cleanupUserSession();
+        }
+        deacreaseUserLiveCount();
       };
     }
   }, []);

@@ -81,22 +81,23 @@ const Table = ({
     if (loading || minBots == null || maxBots == null || totalCycleTime == null || botUpdateTime == null) return;
 
     const timePeriod = totalCycleTime * 60 * 60 * 1000; // Convert hours to milliseconds
-
     const updateBots = () => {
       const fraction = ((Date.now()) % timePeriod) / timePeriod;
       let currentBots;
 
+      // Apply randomness and enforce bounds
+      let randomness = Math.floor(((Date.now()) + tableNum) % 5) - 2; // Randomness within [-2, 2]
       // Calculate bots based on the cycle phase
       if (fraction < 0.5) {
-        currentBots = minBots + (maxBots - minBots) * (fraction * 2);
+        currentBots = minBots + ((maxBots - minBots) * (fraction * 2));
+        randomness--;
       } else {
-        currentBots = maxBots - (maxBots - minBots) * ((fraction - 0.5) * 2);
+        currentBots = maxBots - ((maxBots - minBots) * ((fraction - 0.5) * 2));
+        randomness++;
       }
-
-      // Apply randomness and enforce bounds
-      const randomness = Math.floor(((Date.now() / 15000) + tableNum) % 7) - 3; // Randomness within [-3, 3]
+      
       currentBots = Math.min(
-        Math.max(Math.round(currentBots + randomness), minBots),
+        Math.max(Math.round(currentBots) + randomness, minBots),
         maxBots
       );
       setBots(currentBots);
