@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: url('<%= backgroundImage %>') no-repeat center center fixed;
+        background-size: cover;
+        margin: 0;
+        padding: 0;
+        color: white;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: rgba(0, 0, 0, 0.8); /* Transparent black overlay */
+        padding: 20px;
+        border-radius: 8px;
+      }
+      .header {
+        text-align: center;
+        padding: 10px;
+      }
+      .header img {
+        max-width: 150px;
+      }
+      .section {
+        padding: 10px 0;
+      }
+      .cta {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .cta a {
+        background: #007bff;
+        color: white;
+        padding: 10px 20px;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img src="<%= logoImage %>" alt="OMO Logo">
+        <h1><%= headerText %></h1>
+        <h4><%= subHeaderText %></h4>
+      </div>
+      <div class="section">
+        <p><%= personalizedMessage %></p>
+        <h4>Getting Started</h4>
+        <p><%= gettingStartedText %></p>
+        <img src="<%= featureImage1 %>" alt="Feature 1 Image" style="width: 100%; border-radius: 8px;">
+        <p><%= featureText1 %></p>
+        <img src="<%= featureImage2 %>" alt="Feature 2 Image" style="width: 100%; border-radius: 8px;">
+        <p><%= featureText2 %></p>
+      </div>
+      <div class="cta">
+        <a href="<%= ctaLink %>"><%= ctaText %></a>
+      </div>
+    </div>
+  </body>
+</html>
