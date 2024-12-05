@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import AddIcon from "@mui/icons-material/Add";
 import { allData } from "./EmailData";
+import RegistrationAutoEmail from "./components/RegistrationAutoEmail";
 
 function AutoEmailPage() {
   const [sideBarMenu, setSideBarMenu] = useState("Registration");
@@ -197,40 +198,45 @@ function AutoEmailPage() {
         {/* main section  */}
         <section className="w-5/6 justify-center flex">
           {emailData?.filter((e) => e?.option === sideBarMenu).map((ele, i) => {
-            return (
-              <>
-                <div
-                  key={i}
-                  className="w-[90%] py-12 flex gap-4 flex-col items-center"
-                >
-                  <div className=" px-8 flex gap-2 items-center py-4 w-full">
-                    <p className="text-[1.3rem] font-[700] text-gray-800">
-                      TITLE:-
-                    </p>
-                    {
-                      ele.isEditEnable ? <textarea className="text-[1.1rem] outline-none border border-gray-500 rounded-[0.45rem] px-2 py-1 h-[2.5rem] font-[400] w-full font-mono" value={ele.title} onChange={(e) => handleTitle(e)} ></textarea> :
-                        <span className="text-[1.1rem] font-[400] font-mono">
-                          {ele.title}
-                        </span>
-                    }
+            if(sideBarMenu=='Registration'){
+              return <RegistrationAutoEmail/>
+            }
+            else{
+              return (
+                <>
+                  <div
+                    key={i}
+                    className="w-[90%] py-12 flex gap-4 flex-col items-center"
+                  >
+                    <div className=" px-8 flex gap-2 items-center py-4 w-full">
+                      <p className="text-[1.3rem] font-[700] text-gray-800">
+                        TITLE:-
+                      </p>
+                      {
+                        ele.isEditEnable ? <textarea className="text-[1.1rem] outline-none border border-gray-500 rounded-[0.45rem] px-2 py-1 h-[2.5rem] font-[400] w-full font-mono" value={ele.title} onChange={(e) => handleTitle(e)} ></textarea> :
+                          <span className="text-[1.1rem] font-[400] font-mono">
+                            {ele.title}
+                          </span>
+                      }
+                    </div>
+                    <div className=" px-8 flex gap-2 py-4 w-full">
+                      <p className="text-[1.3rem] font-[700] text-gray-800">
+                        SUBJECT:-
+                      </p>
+                      {
+                        ele.isEditEnable ? <textarea className="text-[1.1rem] w-full outline-none border border-gray-500 rounded-[0.45rem] h-40 px-3 py-2 font-[400] font-mono" onChange={(e) => handleSubjectChange(e)} value={ele.subject}></textarea> :
+                          <span className="text-[1.1rem] font-[400] font-mono">
+                            {ele.subject}
+                          </span>
+                      }
+                    </div>
+                    <Button variant="contained" sx={{ padding: "0.45rem" }} onClick={() => handleEdit(ele)}>
+                      {ele.isEditEnable ? "Save" : "Edit"}
+                    </Button>
                   </div>
-                  <div className=" px-8 flex gap-2 py-4 w-full">
-                    <p className="text-[1.3rem] font-[700] text-gray-800">
-                      SUBJECT:-
-                    </p>
-                    {
-                      ele.isEditEnable ? <textarea className="text-[1.1rem] w-full outline-none border border-gray-500 rounded-[0.45rem] h-40 px-3 py-2 font-[400] font-mono" onChange={(e) => handleSubjectChange(e)} value={ele.subject}></textarea> :
-                        <span className="text-[1.1rem] font-[400] font-mono">
-                          {ele.subject}
-                        </span>
-                    }
-                  </div>
-                  <Button variant="contained" sx={{ padding: "0.45rem" }} onClick={() => handleEdit(ele)}>
-                    {ele.isEditEnable ? "Save" : "Edit"}
-                  </Button>
-                </div>
-              </>
-            );
+                </>
+              );
+            }
           })}
         </section>
       </div>
