@@ -40,6 +40,7 @@ import { useRecoilState } from 'recoil'
 import { DarkMode } from '../../atom/Atom'
 import DarkLoginButton from '../../components/DarkModeButton/DarkLoginButton'
 import RightDarkButton from '../../components/DarkModeButton/RightDarkButton'
+import axios from 'axios'
 
 const auth = getAuth(app)
 const fireStore = getFirestore(app)
@@ -79,7 +80,32 @@ const SignupPage = () => {
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // handle successful sign up
+        console.log(userCredential)
+        console.log(data)
         sendEmailVerification(userCredential.user)
+        .then(() => {
+          // Send email via Firebase function using axios
+          const emailData = {
+            email: data.email,
+            name: data.username,
+          };
+
+          axios
+            .post('https://sendregistrationemail-zugygtxtoa-uc.a.run.app', emailData)
+            .then((response) => {
+              console.log('Email sent successfully to ',data.email);
+            })
+            .catch((error) => {
+              console.error('Failed to send registration email:', error.message);
+              setAuthError('Failed to send registration email');
+              setLoading(false);
+            });
+        })
+        .catch((error) => {
+          console.error('Error sending email verification:', error.message);
+          setAuthError('Error sending email verification');
+          setLoading(false);
+        });
       })
       .catch((error) => {
         if (error.code === 'auth/email-already-in-use') {

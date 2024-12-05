@@ -17,7 +17,7 @@
     "@stripe/react-stripe-js": "^2.4.0",
     "@stripe/stripe-js": "^2.2.2",
     "@tinymce/tinymce-react": "^4.3.0",
-    "axios": "^1.4.0",
+    "axios": "^1.7.9",
     "express": "^4.21.1",
     "firebase": "^9.17.2",
     "firebase-admin": "^12.6.0",
