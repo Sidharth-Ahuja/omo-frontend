@@ -7,9 +7,14 @@ const admin = require('firebase-admin')
 const Mailgun = require('mailgun.js')
 const formData = require('form-data')
 const cors = require('cors')({ origin: true }) // Enable CORS for all origins (for development)
+const serviceAccount = require("./config/autoEmailServiceAccountKey.json"); // Path to your service account file
 
 // Initialize Firebase Admin SDK
-admin.initializeApp()
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: "omo-v1.appspot.com",
+});
+
 // Mailgun Configuration
 const DOMAIN = defineSecret('MAILGUN_DOMAIN')
 const API_KEY = defineSecret('MAILGUN_API_KEY')
@@ -59,14 +64,69 @@ exports.sendRegistrationEmail = functions.https.onRequest(
             .status(404)
             .send('Registration Email template data not found in Firestore')
         }
-        // Prepare dynamic content for the template
+
         const emailData = docSnap.data()
+
+        // Get the image URLs from Firebase Storage (assuming these fields store the path to images)
+        const storage = admin.storage()
+
+        const folderPath = 'auto-email-templates-images/registration/'
+        const [files] = await storage.bucket().getFiles({ prefix: folderPath })
+
+        let bgImagePath, logoPath, featuredImage1Path, featuredImage2Path
+
+        files.forEach((file) => {
+          const fileName = file.name.toLowerCase();
+
+          if (fileName.includes('bgimage')) bgImagePath = file.name
+          if (fileName.includes('logo')) logoPath = file.name
+          if (fileName.includes('featuredimage1'))
+            featuredImage1Path = file.name
+          if (fileName.includes('featuredimage2'))
+            featuredImage2Path = file.name
+        })
+
+        if (
+          !bgImagePath ||
+          !logoPath ||
+          !featuredImage1Path ||
+          !featuredImage2Path
+        ) {
+          throw new Error('One or more required images are missing.')
+        }
+        
+        // Get download URLs for the images
+        const bgImageURL = await storage
+          .bucket()
+          .file(bgImagePath)
+          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+        const logoURL = await storage
+          .bucket()
+          .file(logoPath)
+          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+        const featuredImage1URL = await storage
+          .bucket()
+          .file(featuredImage1Path)
+          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+        const featuredImage2URL = await storage
+          .bucket()
+          .file(featuredImage2Path)
+          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+
+        // Include the URLs in the data to pass to the template
+        emailData.bgimage = bgImageURL[0] // Signed URL for background image
+        emailData.logo = logoURL[0] // Signed URL for logo
+        emailData.featuredImage1 = featuredImage1URL[0] // Signed URL for featuredImage1
+        emailData.featuredImage2 = featuredImage2URL[0] // Signed URL for featuredImage2
+
 
         // // Read and render the EJS template
         const template = fs.readFileSync(
           path.join(templatePath, 'registrationTemplate.ejs'),
           'utf-8'
         )
+
+
         const renderedHtml = ejs.render(template, emailData)
 
         // Email data

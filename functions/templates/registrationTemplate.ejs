@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
-  <head></head>
   <body
     style="
-      font-family: Arial, sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
@@ -14,7 +13,7 @@
   >
     <div
       style="
-        background-image: url('https://i.ibb.co/thbp4L5/background-design.jpg');
+        background-image: url('<%=bgimage%>');
         background-repeat: no-repeat;
         background-size: cover;
         max-width: 576px;
@@ -26,16 +25,11 @@
         color: white;
       "
     >
-      <div
-        style="
-          text-align: center;
-          margin-bottom: 20px;
-        "
-      >
+      <div style="text-align: center; margin-bottom: 20px">
         <img
-          src="https://omov8-bebd1.web.app/assets/omo-logo-389de2f2.png"
+          src="<%=logo%>"
           alt="OMO Logo"
-          style="max-width: 208px; margin: 0 auto; display: block;"
+          style="max-width: 208px; margin: 0 auto; display: block"
         />
         <h1
           style="
@@ -45,7 +39,7 @@
             margin-top: 16px;
           "
         >
-          Welcome to <span style="color: #FCC100">OMO</span>
+          Welcome to <span style="color: #fcc100">OMO</span>
         </h1>
         <h4
           style="
@@ -54,7 +48,7 @@
             font-weight: 600;
             margin-top: 16px;
             padding: 8px 0;
-            border: 1px solid #FCC100;
+            border: 1px solid #fcc100;
             margin-left: 4rem;
             margin-right: 4rem;
           "
@@ -62,51 +56,46 @@
           <%= subHeaderText %>
         </h4>
       </div>
-      <div style="margin-top: 40px;">
-        <h5
-          style="
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 16px;
-          "
-        >
+      <div style="margin-top: 40px">
+        <h5 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 16px">
           <%= salutation %>
         </h5>
-        <p style="font-size: 1.125rem; margin-bottom: 16px;">
+        <p style="font-size: 1.125rem; margin-bottom: 16px">
           <%= personalizedMessage %>
         </p>
         <h4
           style="
             font-size: 1.125rem;
             font-weight: 600;
-            color: #FCC100;
+            color: #fcc100;
             margin: 32px 0;
             padding: 8px 0;
             text-align: center;
-            border: 1px solid #FCC100;
+            border: 1px solid #fcc100;
             margin-left: 4rem;
             margin-right: 4rem;
           "
         >
           <%= header2 %>
         </h4>
-        <p style="font-size: 1.125rem; margin-bottom: 16px;">
-          <span style="color: #FCC100; font-weight: bold;">Explore: </span
-          ><%= gettingStartedText %>
+        <p style="font-size: 1.125rem; margin-bottom: 16px">
+          <span style="color: #fcc100; font-weight: bold">Explore: </span><%=
+          gettingStartedText %>
         </p>
         <img
-          src="https://omov8-bebd1.web.app/assets/FirstTemplateFirst-2e7f4d9a.png"
+          src="<%=featuredImage1%>"
           alt="Feature 1 Image"
-          style="width: 100%; margin-top: 16px; border-radius: 8px;"
+          style="width: 100%; margin-top: 16px; border-radius: 8px"
         />
-        <p style="font-size: 1.125rem; margin-bottom: 16px;">
-          <span style="color: #FCC100; font-weight: bold;">Secure Transactions: </span
+        <p style="font-size: 1.125rem; margin-bottom: 16px">
+          <span style="color: #fcc100; font-weight: bold"
+            >Secure Transactions: </span
           ><%= featureText %>
         </p>
         <img
-          src="https://omov8-bebd1.web.app/assets/FirstTemplatesecond-39ba3c79.png"
+          src="<%=featuredImage2%>"
           alt="Feature 2 Image"
-          style="width: 100%; margin-top: 16px; border-radius: 8px;"
+          style="width: 100%; margin-top: 16px; border-radius: 8px"
         />
       </div>
     </div>

@@ -44,3 +44,6 @@ pnpm-lock.yaml
 
 # TypeScript or other language-specific compiled files (optional)
 *.tsbuildinfo
+
+
+/functions/config/autoEmailServiceAccountKey.json
