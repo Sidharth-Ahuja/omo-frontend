@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bonus Auto Email</title>
+  </head>
+  <body
+    style="
+      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    "
+  >
+    <div
+      style="
+        background-image: url('<%=bgimage%>');
+        background-repeat: no-repeat;
+        background-size: cover;
+        max-width: 576px;
+        margin: 0 auto;
+        padding: 20px;
+        border-radius: 4px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+        background-color: #000;
+        color: white;
+      "
+    >
+      <div style="text-align: center; margin-bottom: 20px">
+        <img
+          src="<%= logo %>"
+          alt="Logo"
+          style="max-width: 200px; margin: 0 auto; display: block"
+        />
+        <h4
+          style="
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-top: 16px;
+            padding: 8px 0;
+            border: 1px solid #fcc100;
+            margin-left: 4rem;
+            margin-right: 4rem;
+          "
+        >
+          <%= subHeaderText %>
+        </h4>
+      </div>
+      <div style="margin-top: 40px">
+        <h5 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 16px">
+          <%= salutation %>
+        </h5>
+        <p style="font-size: 1rem; margin-bottom: 16px">
+          <%= personalizedMessage %>
+        </p>
+        <img
+          src="<%= featuredImage1 %>"
+          alt="Featured Image"
+          style="
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+          "
+        />
+        <p
+          style="
+            font-size: 1.125rem;
+            margin-bottom: 16px;
+            color: #fcc100;
+            font-weight: bold;
+          "
+        >
+          What's in Store for You?
+        </p>
+        <p style="font-size: 1.125rem; margin-bottom: 16px">
+          <span style="color: #fcc100; font-weight: bold"
+            >Exclusive Prizes:
+          </span>
+          <%= ExclusivePrizesText %>
+        </p>
+        <p style="font-size: 1.125rem; margin-bottom: 16px">
+          <span style="color: #fcc100; font-weight: bold"
+            >Monthly Special:
+          </span>
+          <%= MonthlySpecialText %>
+        </p>
+        <p style="font-size: 1.125rem; margin-bottom: 24px">
+          <span style="color: #fcc100; font-weight: bold">Bonus Points: </span>
+          <%= BonusPointsText %>
+        </p>
+        <p style="font-size: 1.125rem">
+          <span style="color: #fcc100; font-weight: bold">How to Claim? </span>
+        </p>
+        <p
+          style="
+            color: white;
+            font-size: 1.125rem;
+          "
+        >
+          <%= HowToClaimText %>
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

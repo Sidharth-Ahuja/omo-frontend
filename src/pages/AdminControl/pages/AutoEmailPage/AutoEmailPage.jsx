@@ -4,6 +4,14 @@ import Stack from "@mui/material/Stack";
 import AddIcon from "@mui/icons-material/Add";
 import { allData } from "./EmailData";
 import RegistrationAutoEmail from "./components/RegistrationAutoEmail";
+import BonusAutoEmail from "./components/BonusAutoEmail";
+import RewardsAutoEmail from "./components/RewardsAutoEmail";
+import DepositAutoEmail from "./components/DepositAutoEmail";
+import WithdrawAutoEmail from "./components/WithdrawAutoEmail";
+import IDApprovedAutoEmail from "./components/IDApprovedAutoEmail";
+import IDDeclinedAutoEmail from "./components/IDDeclinedAutoEmail";
+import AddressApprovedAutoEmail from "./components/AddressApprovedAutoEmail";
+import AddressDeclinedAutoEmail from "./components/AddressDeclinedAutoEmail";
 
 function AutoEmailPage() {
   const [sideBarMenu, setSideBarMenu] = useState("Registration");
@@ -66,7 +74,7 @@ function AutoEmailPage() {
     setShowDropDown(false);
   }
 
-
+  
   return (
     <div className="p-4 sm:ml-64 bg-[#FAFAFA]">
       <div className="flex justify-between items-center">
@@ -196,12 +204,61 @@ function AutoEmailPage() {
           </Stack>
         </aside>
         {/* main section  */}
-        <section className="w-5/6 justify-center flex">
+
+        <div className="w-5/6 justify-center flex">
+          {/* Keep all components mounted but only show the one matching `sideBarMenu` */}
+          <div style={{ display: sideBarMenu === "Registration" ? "block" : "none" }}>
+            <RegistrationAutoEmail />
+          </div>
+          <div style={{ display: sideBarMenu === "Bonus" ? "block" : "none" }}>
+            <BonusAutoEmail />
+          </div>
+          <div style={{ display: sideBarMenu === "Rewards" ? "block" : "none" }}>
+            <RewardsAutoEmail />
+          </div>
+          <div style={{ display: sideBarMenu === "Deposit" ? "block" : "none" }}>
+            <DepositAutoEmail />
+          </div>
+          <div style={{ display: sideBarMenu === "Withdraw" ? "block" : "none" }}>
+            <WithdrawAutoEmail />
+          </div>
+          <div
+            style={{
+              display: sideBarMenu === "Document Approved(ID)" ? "block" : "none",
+            }}
+          >
+            <IDApprovedAutoEmail />
+          </div>
+          <div
+            style={{
+              display: sideBarMenu === "Document Approved(Address)"
+                ? "block"
+                : "none",
+            }}
+          >
+            <AddressApprovedAutoEmail />
+          </div>
+          <div
+            style={{
+              display: sideBarMenu === "Document Declined(ID)" ? "block" : "none",
+            }}
+          >
+            <IDDeclinedAutoEmail />
+          </div>
+          <div
+            style={{
+              display: sideBarMenu === "Document Declined(Address)"
+                ? "block"
+                : "none",
+            }}
+          >
+            <AddressDeclinedAutoEmail />
+          </div>
+        </div>
+
+
+        {/* <section className="w-5/6 justify-center flex">
           {emailData?.filter((e) => e?.option === sideBarMenu).map((ele, i) => {
-            if(sideBarMenu=='Registration'){
-              return <RegistrationAutoEmail/>
-            }
-            else{
               return (
                 <>
                   <div
@@ -236,9 +293,8 @@ function AutoEmailPage() {
                   </div>
                 </>
               );
-            }
           })}
-        </section>
+        </section> */}
       </div>
     </div>
   );
