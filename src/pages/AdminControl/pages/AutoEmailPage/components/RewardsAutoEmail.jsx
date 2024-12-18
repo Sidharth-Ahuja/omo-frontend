@@ -275,7 +275,7 @@ const RewardsAutoEmail = () => {
                 className='text-white bg-transparent border p-2 w-full font-light text-lg'
               />
             ) : (
-              <span className='text-white whitespace-pre-line text-lg font-light'>
+              <span className='text-white text-lg font-light'>
                 {emailData.NeedHelpText}
               </span>
             )}
