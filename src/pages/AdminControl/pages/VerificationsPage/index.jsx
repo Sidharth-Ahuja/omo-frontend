@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { doc, getDoc, getFirestore, updateDoc } from 'firebase/firestore'
 import app from '../../../../config/firebase'
 import LoadingSpinner from '../../../../components/LoadingSpinner'
+import axios from 'axios'
 
 const fireStore = getFirestore(app)
 
@@ -41,20 +42,52 @@ const VerificationsPage = () => {
     setLoadingData(false)
   }
 
-  const handleOnClickIDapprove = (userId, status) => {
-    setClickedIda(!clickedIda)
-    const userRef = doc(fireStore, 'users', userId)
-    updateDoc(userRef, {
-      IDProofApprove: status,
-    })
+  const handleOnClickIDapprove = async(userId, status) => {
+    try{
+      setClickedIda(!clickedIda)
+      const userRef = doc(fireStore, 'users', userId)
+      const userSnap = await getDoc(userRef)
+      updateDoc(userRef, {
+        IDProofApprove: status,
+      })
+      if(status==='approved'){
+        await axios.post('https://sendidapprovedemail-zugygtxtoa-uc.a.run.app', {
+          email: userSnap.data().email,
+        });
+        console.log('ID approval auto email sent successfully!');
+      }else{
+        await axios.post('https://sendiddeclinedautoemail-zugygtxtoa-uc.a.run.app', {
+          email: userSnap.data().email,
+        });
+        console.log('ID declined auto email sent successfully!');
+      }
+    }catch(error){
+      console.error('Error handling address approval:', error.response?.data || error.message);
+    }
   }
 
-  const handleOnClickAddressApprove = (userId, status) => {
-    setClickedAddressA(!clickedAddressA)
-    const userRef = doc(fireStore, 'users', userId)
-    updateDoc(userRef, {
-      addressProofApprove: status,
-    })
+  const handleOnClickAddressApprove = async(userId, status) => {
+    try{
+      setClickedAddressA(!clickedAddressA)
+      const userRef = doc(fireStore, 'users', userId)
+      const userSnap = await getDoc(userRef)
+      updateDoc(userRef, {
+        addressProofApprove: status,
+      })
+      if(status==='approved'){
+        await axios.post('https://sendaddressapprovedautoemail-zugygtxtoa-uc.a.run.app', {
+          email: userSnap.data().email,
+        });
+        console.log('Address approval auto email sent successfully!');
+      }else{
+        await axios.post('https://sendaddressdeclinedautoemail-zugygtxtoa-uc.a.run.app', {
+          email: userSnap.data().email,
+        });
+        console.log('Address declined auto email sent successfully!');
+      }
+    }catch(error){
+      console.error('Error handling address approval:', error.response?.data || error.message);
+    }
   }
 
   useEffect(() => {

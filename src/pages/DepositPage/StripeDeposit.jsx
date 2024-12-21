@@ -23,6 +23,7 @@ import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useRecoilState } from 'recoil'
 import { DarkMode } from '../../atom/Atom'
 import RightDarkButton from '../../components/DarkModeButton/RightDarkButton'
+import axios from 'axios'
 
 export const InputBuyTokens = atom(0)
 export const InputTokenBalance = atom(0)
@@ -122,6 +123,17 @@ const StripeDeposit = () => {
     const userRef = doc(fireStore, 'users', userAuthID)
     const userSnap = await getDoc(userRef)
     const transactionRef = doc(collection(userRef, 'transactions'))
+
+    //Generating Deposit Auto Email
+    try {
+      const emailResponse = await axios.post('https://senddepositautoemail-zugygtxtoa-uc.a.run.app', {
+        email: userSnap.data().email,
+      });
+    
+      console.log('Deposit auto email sent successfully:', emailResponse.data);
+    } catch (error) {
+      console.error('Error sending auto email:', error.response?.data || error.message);
+    }
 
     setTotalBalance(totalBalance + tokens)
 
