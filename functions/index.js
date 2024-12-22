@@ -7,13 +7,13 @@ const admin = require('firebase-admin')
 const Mailgun = require('mailgun.js')
 const formData = require('form-data')
 const cors = require('cors')({ origin: true }) // Enable CORS for all origins (for development)
-const serviceAccount = require("./config/autoEmailServiceAccountKey.json"); // Path to your service account file
+const serviceAccount = require('./config/autoEmailServiceAccountKey.json') // Path to your service account file
 
 // Initialize Firebase Admin SDK
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-  storageBucket: "omo-v1.appspot.com",
-});
+  storageBucket: 'omo-v1.appspot.com',
+})
 
 // Mailgun Configuration
 const DOMAIN = defineSecret('MAILGUN_DOMAIN')
@@ -76,7 +76,7 @@ exports.sendRegistrationEmail = functions.https.onRequest(
         let bgImagePath, logoPath, featuredImage1Path, featuredImage2Path
 
         files.forEach((file) => {
-          const fileName = file.name.toLowerCase();
+          const fileName = file.name.toLowerCase()
 
           if (fileName.includes('bgimage')) bgImagePath = file.name
           if (fileName.includes('logo')) logoPath = file.name
@@ -94,24 +94,36 @@ exports.sendRegistrationEmail = functions.https.onRequest(
         ) {
           throw new Error('One or more required images are missing.')
         }
-        
+
         // Get download URLs for the images
         const bgImageURL = await storage
           .bucket()
           .file(bgImagePath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const logoURL = await storage
           .bucket()
           .file(logoPath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const featuredImage1URL = await storage
           .bucket()
           .file(featuredImage1Path)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const featuredImage2URL = await storage
           .bucket()
           .file(featuredImage2Path)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
 
         // Include the URLs in the data to pass to the template
         emailData.bgimage = bgImageURL[0] // Signed URL for background image
@@ -119,13 +131,11 @@ exports.sendRegistrationEmail = functions.https.onRequest(
         emailData.featuredImage1 = featuredImage1URL[0] // Signed URL for featuredImage1
         emailData.featuredImage2 = featuredImage2URL[0] // Signed URL for featuredImage2
 
-
         // // Read and render the EJS template
         const template = fs.readFileSync(
           path.join(templatePath, 'registrationTemplate.ejs'),
           'utf-8'
         )
-
 
         const renderedHtml = ejs.render(template, emailData)
 
@@ -179,7 +189,9 @@ exports.sendAddressApprovedAutoEmail = functions.https.onRequest(
         if (!docSnap.exists) {
           return res
             .status(404)
-            .send('Address Approved Auto Email template data not found in Firestore')
+            .send(
+              'Address Approved Auto Email template data not found in Firestore'
+            )
         }
 
         const emailData = docSnap.data()
@@ -193,7 +205,7 @@ exports.sendAddressApprovedAutoEmail = functions.https.onRequest(
         let bgImagePath, logoPath, featuredImage1Path
 
         files.forEach((file) => {
-          const fileName = file.name.toLowerCase();
+          const fileName = file.name.toLowerCase()
 
           if (fileName.includes('bgimage')) bgImagePath = file.name
           if (fileName.includes('logo')) logoPath = file.name
@@ -201,40 +213,43 @@ exports.sendAddressApprovedAutoEmail = functions.https.onRequest(
             featuredImage1Path = file.name
         })
 
-        if (
-          !bgImagePath ||
-          !logoPath ||
-          !featuredImage1Path
-        ) {
+        if (!bgImagePath || !logoPath || !featuredImage1Path) {
           throw new Error('One or more required images are missing.')
         }
-        
+
         // Get download URLs for the images
         const bgImageURL = await storage
           .bucket()
           .file(bgImagePath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const logoURL = await storage
           .bucket()
           .file(logoPath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const featuredImage1URL = await storage
           .bucket()
           .file(featuredImage1Path)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
 
         // Include the URLs in the data to pass to the template
         emailData.bgimage = bgImageURL[0] // Signed URL for background image
         emailData.logo = logoURL[0] // Signed URL for logo
         emailData.featuredImage1 = featuredImage1URL[0] // Signed URL for featuredImage1
 
-
         // // Read and render the EJS template
         const template = fs.readFileSync(
           path.join(templatePath, 'addressApprovedTemplate.ejs'),
           'utf-8'
         )
-
 
         const renderedHtml = ejs.render(template, emailData)
 
@@ -268,7 +283,7 @@ exports.sendAddressDeclinedAutoEmail = functions.https.onRequest(
       if (req.method !== 'POST') {
         return res.status(405).send('Method Not Allowed')
       }
-      const { email} = req.body
+      const { email } = req.body
 
       // Check if email or name is missing
       if (!email) {
@@ -302,7 +317,7 @@ exports.sendAddressDeclinedAutoEmail = functions.https.onRequest(
         let bgImagePath, logoPath, featuredImage1Path
 
         files.forEach((file) => {
-          const fileName = file.name.toLowerCase();
+          const fileName = file.name.toLowerCase()
 
           if (fileName.includes('bgimage')) bgImagePath = file.name
           if (fileName.includes('logo')) logoPath = file.name
@@ -310,40 +325,43 @@ exports.sendAddressDeclinedAutoEmail = functions.https.onRequest(
             featuredImage1Path = file.name
         })
 
-        if (
-          !bgImagePath ||
-          !logoPath ||
-          !featuredImage1Path
-        ) {
+        if (!bgImagePath || !logoPath || !featuredImage1Path) {
           throw new Error('One or more required images are missing.')
         }
-        
+
         // Get download URLs for the images
         const bgImageURL = await storage
           .bucket()
           .file(bgImagePath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const logoURL = await storage
           .bucket()
           .file(logoPath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const featuredImage1URL = await storage
           .bucket()
           .file(featuredImage1Path)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
 
         // Include the URLs in the data to pass to the template
         emailData.bgimage = bgImageURL[0] // Signed URL for background image
         emailData.logo = logoURL[0] // Signed URL for logo
         emailData.featuredImage1 = featuredImage1URL[0] // Signed URL for featuredImage1
 
-
         // // Read and render the EJS template
         const template = fs.readFileSync(
           path.join(templatePath, 'addressDeclinedTemplate.ejs'),
           'utf-8'
         )
-
 
         const renderedHtml = ejs.render(template, emailData)
 
@@ -411,7 +429,7 @@ exports.sendBonusAutoEmail = functions.https.onRequest(
         let bgImagePath, logoPath, featuredImage1Path
 
         files.forEach((file) => {
-          const fileName = file.name.toLowerCase();
+          const fileName = file.name.toLowerCase()
 
           if (fileName.includes('bgimage')) bgImagePath = file.name
           if (fileName.includes('logo')) logoPath = file.name
@@ -419,40 +437,43 @@ exports.sendBonusAutoEmail = functions.https.onRequest(
             featuredImage1Path = file.name
         })
 
-        if (
-          !bgImagePath ||
-          !logoPath ||
-          !featuredImage1Path
-        ) {
+        if (!bgImagePath || !logoPath || !featuredImage1Path) {
           throw new Error('One or more required images are missing.')
         }
-        
+
         // Get download URLs for the images
         const bgImageURL = await storage
           .bucket()
           .file(bgImagePath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const logoURL = await storage
           .bucket()
           .file(logoPath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const featuredImage1URL = await storage
           .bucket()
           .file(featuredImage1Path)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
 
         // Include the URLs in the data to pass to the template
         emailData.bgimage = bgImageURL[0] // Signed URL for background image
         emailData.logo = logoURL[0] // Signed URL for logo
         emailData.featuredImage1 = featuredImage1URL[0] // Signed URL for featuredImage1
 
-
         // // Read and render the EJS template
         const template = fs.readFileSync(
           path.join(templatePath, 'bonusTemplate.ejs'),
           'utf-8'
         )
-
 
         const renderedHtml = ejs.render(template, emailData)
 
@@ -519,7 +540,7 @@ exports.sendDepositAutoEmail = functions.https.onRequest(
         let bgImagePath, logoPath, featuredImage1Path
 
         files.forEach((file) => {
-          const fileName = file.name.toLowerCase();
+          const fileName = file.name.toLowerCase()
 
           if (fileName.includes('bgimage')) bgImagePath = file.name
           if (fileName.includes('logo')) logoPath = file.name
@@ -527,40 +548,43 @@ exports.sendDepositAutoEmail = functions.https.onRequest(
             featuredImage1Path = file.name
         })
 
-        if (
-          !bgImagePath ||
-          !logoPath ||
-          !featuredImage1Path
-        ) {
+        if (!bgImagePath || !logoPath || !featuredImage1Path) {
           throw new Error('One or more required images are missing.')
         }
-        
+
         // Get download URLs for the images
         const bgImageURL = await storage
           .bucket()
           .file(bgImagePath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const logoURL = await storage
           .bucket()
           .file(logoPath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const featuredImage1URL = await storage
           .bucket()
           .file(featuredImage1Path)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
 
         // Include the URLs in the data to pass to the template
         emailData.bgimage = bgImageURL[0] // Signed URL for background image
         emailData.logo = logoURL[0] // Signed URL for logo
         emailData.featuredImage1 = featuredImage1URL[0] // Signed URL for featuredImage1
 
-
         // // Read and render the EJS template
         const template = fs.readFileSync(
           path.join(templatePath, 'depositTemplate.ejs'),
           'utf-8'
         )
-
 
         const renderedHtml = ejs.render(template, emailData)
 
@@ -626,7 +650,7 @@ exports.sendIDApprovedEmail = functions.https.onRequest(
         let bgImagePath, logoPath, featuredImage1Path
 
         files.forEach((file) => {
-          const fileName = file.name.toLowerCase();
+          const fileName = file.name.toLowerCase()
 
           if (fileName.includes('bgimage')) bgImagePath = file.name
           if (fileName.includes('logo')) logoPath = file.name
@@ -634,40 +658,43 @@ exports.sendIDApprovedEmail = functions.https.onRequest(
             featuredImage1Path = file.name
         })
 
-        if (
-          !bgImagePath ||
-          !logoPath ||
-          !featuredImage1Path
-        ) {
+        if (!bgImagePath || !logoPath || !featuredImage1Path) {
           throw new Error('One or more required images are missing.')
         }
-        
+
         // Get download URLs for the images
         const bgImageURL = await storage
           .bucket()
           .file(bgImagePath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const logoURL = await storage
           .bucket()
           .file(logoPath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const featuredImage1URL = await storage
           .bucket()
           .file(featuredImage1Path)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
 
         // Include the URLs in the data to pass to the template
         emailData.bgimage = bgImageURL[0] // Signed URL for background image
         emailData.logo = logoURL[0] // Signed URL for logo
         emailData.featuredImage1 = featuredImage1URL[0] // Signed URL for featuredImage1
 
-
         // // Read and render the EJS template
         const template = fs.readFileSync(
           path.join(templatePath, 'idApprovedTemplate.ejs'),
           'utf-8'
         )
-
 
         const renderedHtml = ejs.render(template, emailData)
 
@@ -733,7 +760,7 @@ exports.sendIDDeclinedAutoEmail = functions.https.onRequest(
         let bgImagePath, logoPath, featuredImage1Path
 
         files.forEach((file) => {
-          const fileName = file.name.toLowerCase();
+          const fileName = file.name.toLowerCase()
 
           if (fileName.includes('bgimage')) bgImagePath = file.name
           if (fileName.includes('logo')) logoPath = file.name
@@ -741,40 +768,43 @@ exports.sendIDDeclinedAutoEmail = functions.https.onRequest(
             featuredImage1Path = file.name
         })
 
-        if (
-          !bgImagePath ||
-          !logoPath ||
-          !featuredImage1Path
-        ) {
+        if (!bgImagePath || !logoPath || !featuredImage1Path) {
           throw new Error('One or more required images are missing.')
         }
-        
+
         // Get download URLs for the images
         const bgImageURL = await storage
           .bucket()
           .file(bgImagePath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const logoURL = await storage
           .bucket()
           .file(logoPath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const featuredImage1URL = await storage
           .bucket()
           .file(featuredImage1Path)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
 
         // Include the URLs in the data to pass to the template
         emailData.bgimage = bgImageURL[0] // Signed URL for background image
         emailData.logo = logoURL[0] // Signed URL for logo
         emailData.featuredImage1 = featuredImage1URL[0] // Signed URL for featuredImage1
 
-
         // // Read and render the EJS template
         const template = fs.readFileSync(
           path.join(templatePath, 'idDeclinedTemplate.ejs'),
           'utf-8'
         )
-
 
         const renderedHtml = ejs.render(template, emailData)
 
@@ -840,7 +870,7 @@ exports.sendRewardsAutoEmail = functions.https.onRequest(
         let bgImagePath, logoPath, featuredImage1Path
 
         files.forEach((file) => {
-          const fileName = file.name.toLowerCase();
+          const fileName = file.name.toLowerCase()
 
           if (fileName.includes('bgimage')) bgImagePath = file.name
           if (fileName.includes('logo')) logoPath = file.name
@@ -848,40 +878,43 @@ exports.sendRewardsAutoEmail = functions.https.onRequest(
             featuredImage1Path = file.name
         })
 
-        if (
-          !bgImagePath ||
-          !logoPath ||
-          !featuredImage1Path
-        ) {
+        if (!bgImagePath || !logoPath || !featuredImage1Path) {
           throw new Error('One or more required images are missing.')
         }
-        
+
         // Get download URLs for the images
         const bgImageURL = await storage
           .bucket()
           .file(bgImagePath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const logoURL = await storage
           .bucket()
           .file(logoPath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const featuredImage1URL = await storage
           .bucket()
           .file(featuredImage1Path)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
 
         // Include the URLs in the data to pass to the template
         emailData.bgimage = bgImageURL[0] // Signed URL for background image
         emailData.logo = logoURL[0] // Signed URL for logo
         emailData.featuredImage1 = featuredImage1URL[0] // Signed URL for featuredImage1
 
-
         // // Read and render the EJS template
         const template = fs.readFileSync(
           path.join(templatePath, 'rewardsTemplate.ejs'),
           'utf-8'
         )
-
 
         const renderedHtml = ejs.render(template, emailData)
 
@@ -947,7 +980,7 @@ exports.sendWithdrawEmail = functions.https.onRequest(
         let bgImagePath, logoPath, featuredImage1Path
 
         files.forEach((file) => {
-          const fileName = file.name.toLowerCase();
+          const fileName = file.name.toLowerCase()
 
           if (fileName.includes('bgimage')) bgImagePath = file.name
           if (fileName.includes('logo')) logoPath = file.name
@@ -955,40 +988,43 @@ exports.sendWithdrawEmail = functions.https.onRequest(
             featuredImage1Path = file.name
         })
 
-        if (
-          !bgImagePath ||
-          !logoPath ||
-          !featuredImage1Path
-        ) {
+        if (!bgImagePath || !logoPath || !featuredImage1Path) {
           throw new Error('One or more required images are missing.')
         }
-        
+
         // Get download URLs for the images
         const bgImageURL = await storage
           .bucket()
           .file(bgImagePath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const logoURL = await storage
           .bucket()
           .file(logoPath)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
         const featuredImage1URL = await storage
           .bucket()
           .file(featuredImage1Path)
-          .getSignedUrl({ action: 'read', expires: Date.now() + 1000 * 60 * 60 * 24 * 365 })
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
 
         // Include the URLs in the data to pass to the template
         emailData.bgimage = bgImageURL[0] // Signed URL for background image
         emailData.logo = logoURL[0] // Signed URL for logo
         emailData.featuredImage1 = featuredImage1URL[0] // Signed URL for featuredImage1
 
-
         // // Read and render the EJS template
         const template = fs.readFileSync(
           path.join(templatePath, 'withdrawTemplate.ejs'),
           'utf-8'
         )
-
 
         const renderedHtml = ejs.render(template, emailData)
 
@@ -1008,6 +1044,141 @@ exports.sendWithdrawEmail = functions.https.onRequest(
           error.response ? error.response.body : error.message
         )
         return res.status(500).send('Failed to send email')
+      }
+    })
+  }
+)
+exports.sendTemplate1AutoEmail = functions.https.onRequest(
+  { secrets: [DOMAIN, API_KEY] },
+  (req, res) => {
+    cors(req, res, async () => {
+      // Ensure it's a POST request
+      if (req.method !== 'POST') {
+        return res.status(405).send('Method Not Allowed')
+      }
+      const domain = DOMAIN.value()
+      const apiKey = API_KEY.value()
+      const mg = getMailgunClient(domain, apiKey)
+
+      try {
+        // Step 1: Fetch all emails from Firestore
+        const usersRef = admin.firestore().collection('users')
+        const usersSnapshot = await usersRef.get()
+
+        if (usersSnapshot.empty) {
+          return res.status(404).send('No users found')
+        }
+
+        // Step 2: Extract emails from Firestore documents
+        const emailAddresses = []
+        usersSnapshot.forEach((doc) => {
+          const userData = doc.data()
+          const email = userData.email
+          if (email) {
+            emailAddresses.push(email)
+          }
+        })
+        // Step 3: Fetch email template data from Firestore
+        const templateDocRef = admin
+          .firestore()
+          .collection('auto-email-templates')
+          .doc('addNewTemplate1')
+        const docSnap = await templateDocRef.get()
+
+        if (!docSnap.exists) {
+          return res.status(404).send('Template not found in Firestore')
+        }
+
+        const emailData = docSnap.data()
+
+        // Step 4: Get image URLs from Firebase Storage (if needed)
+        const storage = admin.storage()
+        const folderPath = 'auto-email-templates-images/addNewTemplate1'
+        const [files] = await storage.bucket().getFiles({ prefix: folderPath })
+
+        let bgImagePath, logoPath, featuredImage1Path
+        files.forEach((file) => {
+          const fileName = file.name.toLowerCase()
+          if (fileName.includes('bgimage')) bgImagePath = file.name
+          if (fileName.includes('logo')) logoPath = file.name
+          if (fileName.includes('featuredimage1'))
+            featuredImage1Path = file.name
+        })
+
+        if (!bgImagePath || !logoPath || !featuredImage1Path) {
+          throw new Error('One or more required images are missing.')
+        }
+
+        // Get download URLs for images
+        const bgImageURL = await storage
+          .bucket()
+          .file(bgImagePath)
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
+        const logoURL = await storage
+          .bucket()
+          .file(logoPath)
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
+        const featuredImage1URL = await storage
+          .bucket()
+          .file(featuredImage1Path)
+          .getSignedUrl({
+            action: 'read',
+            expires: Date.now() + 1000 * 60 * 60 * 24 * 365,
+          })
+
+        // Add image URLs to email data
+        emailData.bgimage = bgImageURL[0]
+        emailData.logo = logoURL[0]
+        emailData.featuredImage1 = featuredImage1URL[0]
+
+        // Step 5: Read and render the EJS template
+        const template = fs.readFileSync(
+          path.join(__dirname, 'templates', 'addNewTemplate1.ejs'),
+          'utf-8'
+        )
+        const renderedHtml = ejs.render(template, emailData)
+
+        //remove
+        const random=['nodahi7423@owube.com','bomepog628@cctoolz.com','divyanshu.srathore.mec20@itbhu.ac.in']
+
+        // Step 6: Batch email sending (batch size of 900)
+        const batchSize = 900
+        const emailBatches = []
+        for (let i = 0; i < random.length; i += batchSize) {
+          emailBatches.push(random.slice(i, i + batchSize))
+        }
+
+        // Send each batch
+        for (const batch of emailBatches) {
+          const emailMessage = {
+            from: `no-reply@${domain}`,
+            to: batch.join(','),
+            subject: 'Your Latest Update from OMO!',
+            html: renderedHtml,
+          }
+
+          try {
+            await mg.messages.create(domain, emailMessage)
+            console.log(`Email sent to batch: ${batch.join(',')}`)
+          } catch (error) {
+            console.error(
+              `Failed to send batch: ${batch.join(',')}`,
+              error
+            )
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1000))
+        }
+      
+        return res.status(200).send(`Emails sent successfully to all users`)
+      } catch (error) {
+        console.error('Error sending email:', error)
+        return res.status(500).send('Failed to send emails')
       }
     })
   }
