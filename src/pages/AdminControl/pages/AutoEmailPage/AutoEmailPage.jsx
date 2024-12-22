@@ -12,6 +12,7 @@ import IDApprovedAutoEmail from "./components/IDApprovedAutoEmail";
 import IDDeclinedAutoEmail from "./components/IDDeclinedAutoEmail";
 import AddressApprovedAutoEmail from "./components/AddressApprovedAutoEmail";
 import AddressDeclinedAutoEmail from "./components/AddressDeclinedAutoEmail";
+import AddNewAutoEmail from "./components/AddNewAutoEmail";
 
 function AutoEmailPage() {
   const [sideBarMenu, setSideBarMenu] = useState("Registration");
@@ -197,7 +198,8 @@ function AutoEmailPage() {
             >
               Document Declined(Address)
             </Button>
-            <Button variant="contained" sx={{ display: "flex", gap: "0.5rem" }}>
+            <Button variant="contained" sx={{ display: "flex", gap: "0.5rem" }} 
+              onClick={() => setSideBarMenu("Add New")}>
               <AddIcon />
               Add New
             </Button>
@@ -253,6 +255,15 @@ function AutoEmailPage() {
             }}
           >
             <AddressDeclinedAutoEmail />
+          </div>
+          <div
+            style={{
+              display: sideBarMenu === "Add New"
+                ? "block"
+                : "none",
+            }}
+          >
+            <AddNewAutoEmail />
           </div>
         </div>
 

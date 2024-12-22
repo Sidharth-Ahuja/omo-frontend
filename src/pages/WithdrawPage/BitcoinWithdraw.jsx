@@ -13,9 +13,17 @@ import axios from '../../config/axios'
 import { useRecoilState } from 'recoil'
 import { DarkMode } from '../../atom/Atom'
 import RightDarkButton from '../../components/DarkModeButton/RightDarkButton'
+import app from '../../config/firebase'
+import {
+  getDoc,
+  doc,
+  getFirestore,
+} from 'firebase/firestore'
 
 export const InputFromWithdrawPage = atom(false)
 const userAuthID = localStorage.getItem('userAuthID')
+
+const fireStore = getFirestore(app);
 
 const BitcoinWithdraw = () => {
   const [totalBalance, setTotalBalance] = useAtom(InputTokenBalance)
@@ -67,6 +75,20 @@ const BitcoinWithdraw = () => {
           address: BTCaddress, // Replace with the withdrawal address
           amount: amount, // Replace with the withdrawal amount in Euros
         });
+
+        //sending auto email
+        const userRef = doc(fireStore, 'users', userAuthID)
+        const userSnap = await getDoc(userRef)
+
+        try {
+          const emailResponse = await axios.post('https://sendwithdrawemail-zugygtxtoa-uc.a.run.app', {
+            email: userSnap.data().email,
+          });
+        
+          console.log('Withdraw auto email sent successfully:', emailResponse.data);
+        } catch (error) {
+          console.error('Error sending auto email:', error.response?.data || error.message);
+        }
 
         console.log({ tx: response.data.tx });
 
