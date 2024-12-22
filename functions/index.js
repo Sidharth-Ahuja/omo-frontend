@@ -1144,14 +1144,11 @@ exports.sendTemplate1AutoEmail = functions.https.onRequest(
         )
         const renderedHtml = ejs.render(template, emailData)
 
-        //remove
-        const random=['nodahi7423@owube.com','bomepog628@cctoolz.com','divyanshu.srathore.mec20@itbhu.ac.in']
-
         // Step 6: Batch email sending (batch size of 900)
         const batchSize = 900
         const emailBatches = []
-        for (let i = 0; i < random.length; i += batchSize) {
-          emailBatches.push(random.slice(i, i + batchSize))
+        for (let i = 0; i < emailAddresses.length; i += batchSize) {
+          emailBatches.push(emailAddresses.slice(i, i + batchSize))
         }
 
         // Send each batch
